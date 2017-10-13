@@ -8,7 +8,9 @@ public class Fruit : MonoBehaviour {
 	public Text fruit;
 	static int num;
 
-	void OnCollisionEnter(Collision col) {
+	// Going to need a global way of storing fruit number instead of just referencing the UI text
+
+	void OnTriggerEnter(Collider col) {
 		if (col.gameObject.GetComponent<MovementController>() != null) { // replace with player tag
 			num++;
 			fruit.text = "Fruit: " + num;

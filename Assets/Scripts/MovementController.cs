@@ -6,10 +6,8 @@ public class MovementController : MonoBehaviour {
 
 
 	#region PublicVariables
-    public float Velocity;
-
     [Range(0f, 200f)] public float moveForce;
-    [Range(0f, 400f)] public float jumpForce;
+    [Range(0f, 15f)] public float jumpHeight;
     [Range(0f, 1f)] public float drag = .1f;
 	public float airControlFactor = 2;
     #endregion
@@ -22,27 +20,33 @@ public class MovementController : MonoBehaviour {
     Vector3 speed;
     Vector3 forward;
 
-    float x, y, z;
+    float x, y, z, jumpTime;
     bool isGrounded;
+    bool isJumping;
     #endregion
 
 	// Use this for initialization
-	void Awake () {
+    void Start() {
 		body = GetComponent<Rigidbody>();
 	}
 	
-	void FixedUpdate () {
+	void FixedUpdate() {
+        isJumping = Input.GetButton("Jump") && isGrounded;
+        jumpTime = isJumping ? Time.time : jumpTime;
 		x = (isGrounded) ? Input.GetAxis("Vertical") : Input.GetAxis("Vertical") / airControlFactor;
-		y = Input.GetButtonDown("Jump") && isGrounded ? jumpForce : 0;
+	    y = Time.time < jumpTime + .3333f ? jumpAcceleration(jumpHeight, .6666f) : -9.81f;
 		z = (isGrounded) ? Input.GetAxis("Horizontal") : Input.GetAxis("Horizontal") / airControlFactor;
 
-		speed = ((x /*+ y / 4*/) * transform.forward + z * transform.right
-			+ y * transform.up) * moveForce * Time.deltaTime;
+		speed = ((x * transform.forward + z * transform.right) * moveForce
+			+ y * transform.up) * Time.deltaTime;
 		
 		body.velocity += speed;
-
 		HorizontalDrag(body.velocity, drag);
 	}
+
+    public float jumpAcceleration(float height, float time) {
+        return (2 * (height + 1)) / Mathf.Pow(time, 2) + Physics.gravity.magnitude;
+    }
 
 	void OnCollisionStay(Collision col)
     {
@@ -58,9 +62,10 @@ public class MovementController : MonoBehaviour {
     {
         velocity.x *= 1 - drag;
         velocity.z *= 1 - drag;
-		if (body.velocity.y < 0 && !isGrounded) {
-			velocity.y += .02f * Physics.gravity.y;
-		}
+		// if (body.velocity.y < 0 && !isGrounded) { 
+		// 	velocity.y *= 1.1f;
+		// }
+        
         body.velocity = velocity;
     }
 }
