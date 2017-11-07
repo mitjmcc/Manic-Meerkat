@@ -33,19 +33,28 @@ public class MovementController : MonoBehaviour {
 	void FixedUpdate() {
         isJumping = Input.GetButton("Jump") && isGrounded;
         jumpTime = isJumping ? Time.time : jumpTime;
-		x = (isGrounded) ? Input.GetAxis("Vertical") : Input.GetAxis("Vertical") / airControlFactor;
-	    y = Time.time < jumpTime + .3333f ? jumpAcceleration(jumpHeight, .6666f) : -9.81f;
-		z = (isGrounded) ? Input.GetAxis("Horizontal") : Input.GetAxis("Horizontal") / airControlFactor;
+		x = (isGrounded) ? Input.GetAxisRaw("Vertical") : Input.GetAxisRaw("Vertical") / airControlFactor;
+		z = (isGrounded) ? Input.GetAxisRaw("Horizontal") : Input.GetAxisRaw("Horizontal") / airControlFactor;
 
-		speed = ((x * transform.forward + z * transform.right) * moveForce
-			+ y * transform.up) * Time.deltaTime;
-		
-		body.velocity += speed;
-		HorizontalDrag(body.velocity, drag);
+		Vector3 direction = new Vector3 (z, 0, x);
+
+		if (direction.magnitude > 0) {
+			speed = direction.normalized * moveForce;
+		} else {
+			speed = new Vector3 ();
+		}
+
+		speed = Vector3.Lerp (body.velocity, speed, 1);
+
+		body.velocity = new Vector3 (speed.x, body.velocity.y, speed.z);
+		if (isJumping) {
+			body.velocity += Vector3.up * 20f;
+		}
 	}
 
+	//Crate jump acceleration
     public float jumpAcceleration(float height, float time) {
-        return (2 * (height + 1)) / Mathf.Pow(time, 2) + Physics.gravity.magnitude;
+		return 23f;
     }
 
 	void OnCollisionStay(Collision col)
@@ -56,16 +65,5 @@ public class MovementController : MonoBehaviour {
     void OnCollisionExit(Collision col)
     {
         isGrounded = false;
-    }
-
-	void HorizontalDrag(Vector3 velocity, float drag)
-    {
-        velocity.x *= 1 - drag;
-        velocity.z *= 1 - drag;
-		// if (body.velocity.y < 0 && !isGrounded) { 
-		// 	velocity.y *= 1.1f;
-		// }
-        
-        body.velocity = velocity;
     }
 }
