@@ -52,10 +52,25 @@ public class MovementController : MonoBehaviour {
 		}
 	}
 
-	//Crate jump acceleration
-    public float jumpAcceleration(float height, float time) {
-		return 23f;
-    }
+	private void jumpOff()
+	{
+		body.velocity += Vector3.up * 20f;
+	}
+
+	void OnCollisionEnter(Collision col)
+	{
+		IKillable killable = col.gameObject.GetComponent<IKillable> ();
+		if (killable != null) {
+			killable.Kill ();
+			foreach (ContactPoint contact in col.contacts) {
+				float d = Vector3.Dot (transform.up, contact.normal);
+				if (d > 0 && d <= 1) {
+					jumpOff ();
+					break;
+				}
+			}
+		}
+	}
 
 	void OnCollisionStay(Collision col)
     {
