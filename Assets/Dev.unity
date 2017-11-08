@@ -1370,6 +1370,21 @@ Prefab:
       propertyPath: cam
       value: 
       objectReference: {fileID: 395377004}
+    - target: {fileID: 114929230281423108, guid: ac2c5db0ec2c2554787f474ca3d4e07d,
+        type: 2}
+      propertyPath: jumpHeight
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 114929230281423108, guid: ac2c5db0ec2c2554787f474ca3d4e07d,
+        type: 2}
+      propertyPath: moveSpeed
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 114929230281423108, guid: ac2c5db0ec2c2554787f474ca3d4e07d,
+        type: 2}
+      propertyPath: boxJumpHeight
+      value: 21
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: ac2c5db0ec2c2554787f474ca3d4e07d, type: 2}
   m_IsPrefabParent: 0

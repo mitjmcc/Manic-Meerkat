@@ -6,9 +6,9 @@ public class MovementController : MonoBehaviour {
 
 
 	#region PublicVariables
-    [Range(0f, 200f)] public float moveForce;
-    [Range(0f, 15f)] public float jumpHeight;
-    [Range(0f, 1f)] public float drag = .1f;
+    [Range(0f, 200f)] public float moveSpeed;
+    [Range(0f, 30f)] public float jumpHeight;
+	[Range(0f, 30f)] public float boxJumpHeight;
 	public float airControlFactor = 2;
 	public Camera cam;
     #endregion
@@ -39,7 +39,7 @@ public class MovementController : MonoBehaviour {
 		Vector3 direction = cam.transform.TransformVector(new Vector3 (z, 0, x));
 
 		if (direction.magnitude > 0) {
-			speed = direction.normalized * moveForce;
+			speed = direction.normalized * moveSpeed;
 		} else {
 			speed = new Vector3 ();
 		}
@@ -48,7 +48,7 @@ public class MovementController : MonoBehaviour {
 
 		body.velocity = new Vector3 (speed.x, body.velocity.y, speed.z);
 		if (isJumping) {
-			body.velocity += Vector3.up * 20f;
+			body.velocity = new Vector3(body.velocity.x, jumpHeight, body.velocity.y);
 		}
 	}
 
@@ -59,11 +59,11 @@ public class MovementController : MonoBehaviour {
 			foreach (ContactPoint contact in col.contacts) {
 				if (body.transform.position.y > col.gameObject.transform.position.y && col.relativeVelocity.y > 1f) {
 					killable.Kill ();
-					body.velocity += Vector3.up * 20f;
+					body.velocity = new Vector3(body.velocity.x, boxJumpHeight, body.velocity.y);
 					break;
 				} else if (body.transform.position.y < col.gameObject.transform.position.y && col.relativeVelocity.y < 1f) {
 					killable.Kill ();
-					body.velocity -= Vector3.up * 20f;
+					body.velocity = new Vector3(body.velocity.x, -boxJumpHeight, body.velocity.y);
 					break;
 				}
 			}
