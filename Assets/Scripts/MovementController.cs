@@ -10,11 +10,11 @@ public class MovementController : MonoBehaviour {
     [Range(0f, 15f)] public float jumpHeight;
     [Range(0f, 1f)] public float drag = .1f;
 	public float airControlFactor = 2;
+	public Camera cam;
     #endregion
 
 	#region PrivateVariables
     Rigidbody body;
-    Camera cam;
 	Transform model;
     Animator anim;
     Vector3 speed;
@@ -36,7 +36,7 @@ public class MovementController : MonoBehaviour {
 		x = (isGrounded) ? Input.GetAxisRaw("Vertical") : Input.GetAxisRaw("Vertical") / airControlFactor;
 		z = (isGrounded) ? Input.GetAxisRaw("Horizontal") : Input.GetAxisRaw("Horizontal") / airControlFactor;
 
-		Vector3 direction = new Vector3 (z, 0, x);
+		Vector3 direction = cam.transform.TransformVector(new Vector3 (z, 0, x));
 
 		if (direction.magnitude > 0) {
 			speed = direction.normalized * moveForce;
