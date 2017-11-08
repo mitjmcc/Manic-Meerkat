@@ -57,12 +57,11 @@ public class MovementController : MonoBehaviour {
 		IKillable killable = col.gameObject.GetComponent<IKillable> ();
 		if (killable != null) {
 			foreach (ContactPoint contact in col.contacts) {
-				float d = Vector3.Dot (transform.up, contact.normal);
-				if (d > 0 && d <= 1) {
+				if (body.transform.position.y > col.gameObject.transform.position.y && col.relativeVelocity.y > 1f) {
 					killable.Kill ();
 					body.velocity += Vector3.up * 20f;
 					break;
-				} else if (d >= -1 && d < 0) {
+				} else if (body.transform.position.y < col.gameObject.transform.position.y && col.relativeVelocity.y < 1f) {
 					killable.Kill ();
 					body.velocity -= Vector3.up * 20f;
 					break;
