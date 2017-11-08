@@ -52,20 +52,19 @@ public class MovementController : MonoBehaviour {
 		}
 	}
 
-	private void jumpOff()
-	{
-		body.velocity += Vector3.up * 20f;
-	}
-
 	void OnCollisionEnter(Collision col)
 	{
 		IKillable killable = col.gameObject.GetComponent<IKillable> ();
 		if (killable != null) {
-			killable.Kill ();
 			foreach (ContactPoint contact in col.contacts) {
 				float d = Vector3.Dot (transform.up, contact.normal);
 				if (d > 0 && d <= 1) {
-					jumpOff ();
+					killable.Kill ();
+					body.velocity += Vector3.up * 20f;
+					break;
+				} else if (d >= -1 && d < 0) {
+					killable.Kill ();
+					body.velocity -= Vector3.up * 20f;
 					break;
 				}
 			}
