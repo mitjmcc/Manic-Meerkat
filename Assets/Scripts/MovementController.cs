@@ -31,7 +31,7 @@ public class MovementController : MonoBehaviour {
 	}
 	
 	void FixedUpdate() {
-        isJumping = Input.GetButton("Jump") && isGrounded;
+        isJumping = Input.GetButtonDown("Jump") && isGrounded;
         jumpTime = isJumping ? Time.time : jumpTime;
 		x = (isGrounded) ? Input.GetAxisRaw("Vertical") : Input.GetAxisRaw("Vertical") / airControlFactor;
 		z = (isGrounded) ? Input.GetAxisRaw("Horizontal") : Input.GetAxisRaw("Horizontal") / airControlFactor;
