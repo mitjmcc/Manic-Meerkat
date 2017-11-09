@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Crate : MonoBehaviour, IKillable {
+public class Crate : MonoBehaviour, IJumpable, IBashable {
 
 	public GameObject spawn;
 
-	public void Kill() {
+	public void OnJump() {
+		// Instantiate(spawn, transform.position, Quaternion.identity);
+		gameObject.SetActive(false);
+	}
+
+	public void OnBash() {
 		// Instantiate(spawn, transform.position, Quaternion.identity);
 		gameObject.SetActive(false);
 	}
