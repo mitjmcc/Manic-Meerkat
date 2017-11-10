@@ -10,6 +10,7 @@ public class MainMenu : MonoBehaviour {
 	public ControllerUI uiHandler;
 	public Button backButton;
 	public Button creditsButton;
+	public Button playButton;
 
 	public AudioClip whoosh;
 
@@ -18,6 +19,16 @@ public class MainMenu : MonoBehaviour {
 	void Start()
 	{
 		source = GetComponent<AudioSource> ();
+	}
+
+	public void SelectPlayButton()
+	{
+		creditsButton.GetComponent<Animator> ().SetBool ("Highlighted", false);
+	}
+
+	public void SelectCreditsButton()
+	{
+		playButton.GetComponent<Animator> ().SetBool ("Highlighted", false);
 	}
 
 	public void toCredits()

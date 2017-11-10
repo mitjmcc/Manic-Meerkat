@@ -352,6 +352,17 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+        - m_Target: {fileID: 1787362152}
+          m_MethodName: SelectPlayButton
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
       m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
         Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   - eventID: 1
@@ -5596,6 +5607,17 @@ MonoBehaviour:
           m_CallState: 2
         - m_Target: {fileID: 987168756}
           m_MethodName: Play
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 1787362152}
+          m_MethodName: SelectCreditsButton
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -16482,7 +16504,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0054bffc46f415043b9b7340885ece0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  anim: {fileID: 0}
 --- !u!1001 &1534722559
 Prefab:
   m_ObjectHideFlags: 0
@@ -16641,6 +16662,7 @@ MonoBehaviour:
   uiHandler: {fileID: 819358108}
   backButton: {fileID: 996654942}
   creditsButton: {fileID: 987168750}
+  playButton: {fileID: 47133361}
   whoosh: {fileID: 8300000, guid: 15d7331338ae6834e91f9bac6e925b9f, type: 3}
 --- !u!4 &1787362153
 Transform:
