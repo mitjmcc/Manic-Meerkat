@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PacingEnemy : MonoBehaviour, IKillable {
+public class PacingEnemy : MonoBehaviour, IJumpable, IBashable {
 
 	public Transform[] points = new Transform[2];
 	public float speed;
@@ -21,7 +21,11 @@ public class PacingEnemy : MonoBehaviour, IKillable {
 		transform.position = Vector3.Lerp(transform.position, target, speed * Time.deltaTime);
 	}
 
-	public void Kill() {
+	public void OnJump() {
 		gameObject.SetActive(false);
+	}
+
+	public void OnBash() {
+		gameObject.SetActive (false);
 	}
 }
