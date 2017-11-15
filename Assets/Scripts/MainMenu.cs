@@ -31,6 +31,11 @@ public class MainMenu : MonoBehaviour {
 		playButton.GetComponent<Animator> ().SetBool ("Highlighted", false);
 	}
 
+    public void playGame()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Level1");
+    }
+
 	public void toCredits()
 	{
 		cameraAnimator.SetBool ("ViewingCredits", true);
