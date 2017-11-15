@@ -29,11 +29,12 @@ public class CharacterController : MonoBehaviour {
 	// Use this for initialization
     void Start() {
 		body = GetComponent<Rigidbody>();
+		anim = GetComponent<Animator>();
 	}
 	
 	void FixedUpdate() {
 		isJumping = Input.GetButton("Jump") && isGrounded;
-		isBashing = Input.GetButtonDown ("Fire1");
+		isBashing = Input.GetButtonDown("Fire1");
 
 		x = (isGrounded) ? Input.GetAxisRaw("Vertical") : Input.GetAxisRaw("Vertical") / airControlFactor;
 		z = (isGrounded) ? Input.GetAxisRaw("Horizontal") : Input.GetAxisRaw("Horizontal") / airControlFactor;
@@ -42,18 +43,31 @@ public class CharacterController : MonoBehaviour {
 
 		if (direction.magnitude > 0) {
 			speed = direction.normalized * moveSpeed;
+			anim.speed = speed.magnitude;
 		} else {
-			speed = new Vector3 ();
+			speed = Vector3.zero;
+			anim.speed = 1;
 		}
 
-		body.velocity = new Vector3 (speed.x, body.velocity.y, speed.z);
+		anim.SetFloat("magnitude", speed.magnitude);
+
+		if (anim.applyRootMotion)
+			transform.position =  anim.rootPosition;
+		else
+			body.velocity = new Vector3 (speed.x, body.velocity.y, speed.z);
+
+		AdjustRigidbodyForward(body, direction, cam.transform.forward, 20f);
 
 		if (isJumping) {
 			if (Time.time > jumpTime + 0.2f) {
+				anim.SetTrigger("jump");
+				anim.applyRootMotion = false;
 				body.velocity = new Vector3 (body.velocity.x, jumpHeight, body.velocity.y);
 				jumpTime = Time.time;
 			}
 		}
+
+		anim.SetBool("grounded", isGrounded);
 
 		if (isBashing) {
 			BashAttack ();
@@ -70,6 +84,25 @@ public class CharacterController : MonoBehaviour {
 			}
 		}
 	}
+
+	public static void AdjustRigidbodyForward(Rigidbody body, Vector3 direction, Vector3 camForward, float speed)
+    {
+        //Only rotate the body when there is motion
+        if (direction.magnitude > 0)
+        {
+            //The direction of movement
+            Vector3 moveForward = new Vector3(direction.x, 0, direction.z).normalized, forward;
+
+            if (Vector3.Dot(moveForward, camForward) >= 1)
+                //If the body is moving in the direction of the camera is pointing
+                forward = camForward;
+            else
+                //Or it is not going in the direction of the camera
+                forward = moveForward;
+            //Smooth the direction the body is facing to the correct direction
+            body.transform.forward = Vector3.Lerp(body.transform.forward, forward, speed * Time.fixedDeltaTime);
+        }
+    }
 
 	void OnCollisionEnter(Collision col)
 	{
@@ -100,10 +133,12 @@ public class CharacterController : MonoBehaviour {
 	void OnCollisionStay(Collision col)
 	{
 		isGrounded = true;
+		anim.applyRootMotion = true;
 	}
 
     void OnCollisionExit(Collision col)
     {
         isGrounded = false;
+		anim.applyRootMotion = false;
     }
 }
