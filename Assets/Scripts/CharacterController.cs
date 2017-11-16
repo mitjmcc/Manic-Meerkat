@@ -11,6 +11,8 @@ public class CharacterController : MonoBehaviour {
 	[Range(0f, 30f)] public float boxJumpHeight;
 	public float airControlFactor = 2;
 	public Camera cam;
+	public PhysicMaterial groundMaterial;
+	public PhysicMaterial jumpMaterial;
     #endregion
 
 	#region PrivateVariables
@@ -22,14 +24,17 @@ public class CharacterController : MonoBehaviour {
 
     float x, y, z, jumpTime;
     bool isGrounded;
+	bool isTouchingWall;
     bool isJumping;
 	bool isBashing;
+	CapsuleCollider collider;
     #endregion
 
 	// Use this for initialization
     void Start() {
 		body = GetComponent<Rigidbody>();
 		anim = GetComponent<Animator>();
+		collider = GetComponent<CapsuleCollider> ();
 	}
 	
 	void FixedUpdate() {
@@ -43,25 +48,22 @@ public class CharacterController : MonoBehaviour {
 
 		if (direction.magnitude > 0) {
 			speed = direction.normalized * moveSpeed;
-			anim.speed = speed.magnitude;
 		} else {
 			speed = Vector3.zero;
 			anim.speed = 1;
 		}
 
-		anim.SetFloat("magnitude", speed.magnitude);
+		anim.SetFloat("magnitude", Mathf.Lerp(anim.GetFloat("magnitude"), Mathf.Min(1, direction.magnitude), Time.fixedDeltaTime * 12f));
 
-		if (anim.applyRootMotion)
-			transform.position =  anim.rootPosition;
-		else
+		if (!isGrounded) {
 			body.velocity = new Vector3 (speed.x, body.velocity.y, speed.z);
+		}
 
 		AdjustRigidbodyForward(body, direction, cam.transform.forward, 20f);
 
 		if (isJumping) {
 			if (Time.time > jumpTime + 0.2f) {
 				anim.SetTrigger("jump");
-				anim.applyRootMotion = false;
 				body.velocity = new Vector3 (body.velocity.x, jumpHeight, body.velocity.y);
 				jumpTime = Time.time;
 			}
@@ -72,8 +74,6 @@ public class CharacterController : MonoBehaviour {
 		if (isBashing) {
 			BashAttack ();
 		}
-
-		Debug.DrawRay (transform.position + Vector3.down * 0.5f, Vector3.down * 0.5f);
 	}
 
 	void BashAttack() {
@@ -85,6 +85,12 @@ public class CharacterController : MonoBehaviour {
 		}
 	}
 
+	void OnAnimatorMove() {
+		if (isGrounded) {
+			transform.position = transform.position + anim.deltaPosition * 1.4f;
+		}
+	}
+
 	public static void AdjustRigidbodyForward(Rigidbody body, Vector3 direction, Vector3 camForward, float speed)
     {
         //Only rotate the body when there is motion
@@ -93,14 +99,9 @@ public class CharacterController : MonoBehaviour {
             //The direction of movement
             Vector3 moveForward = new Vector3(direction.x, 0, direction.z).normalized, forward;
 
-            if (Vector3.Dot(moveForward, camForward) >= 1)
-                //If the body is moving in the direction of the camera is pointing
-                forward = camForward;
-            else
-                //Or it is not going in the direction of the camera
-                forward = moveForward;
-            //Smooth the direction the body is facing to the correct direction
-            body.transform.forward = Vector3.Lerp(body.transform.forward, forward, speed * Time.fixedDeltaTime);
+            forward = moveForward;
+
+            body.transform.forward = forward;
         }
     }
 
@@ -132,13 +133,21 @@ public class CharacterController : MonoBehaviour {
 
 	void OnCollisionStay(Collision col)
 	{
-		isGrounded = true;
-		anim.applyRootMotion = true;
+		if (col.gameObject.CompareTag ("Ground")) {
+			isGrounded = true;
+			collider.material = groundMaterial;
+		} else {
+			isTouchingWall = true;
+		}
 	}
 
     void OnCollisionExit(Collision col)
     {
-        isGrounded = false;
-		anim.applyRootMotion = false;
+		if (col.gameObject.CompareTag ("Ground")) {
+			isGrounded = false;
+			collider.material = jumpMaterial;
+		} else {
+			isTouchingWall = false;
+		}
     }
 }
