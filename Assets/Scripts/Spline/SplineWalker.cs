@@ -8,6 +8,9 @@ public class SplineWalker : MonoBehaviour {
 
 	public bool lookForward;
 
+	[Range(0, 1)]
+	public float lookAtPlayerAmount;
+
 	public SplineWalkerMode mode;
 
 	private float progress;
@@ -45,7 +48,7 @@ public class SplineWalker : MonoBehaviour {
 
 		if (lookForward) {
 			Vector3 lookAt = position + Vector3.ProjectOnPlane(spline.GetDirection (progress), Vector3.up);
-			idealTransform.transform.LookAt(lookAt);
+			idealTransform.transform.LookAt(Vector3.Lerp(lookAt, player.position, lookAtPlayerAmount));
 		}
 
 		transform.localPosition = Vector3.Lerp (transform.localPosition, idealTransform.transform.localPosition, Time.deltaTime * 4f);
