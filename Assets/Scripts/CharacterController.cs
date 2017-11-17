@@ -59,7 +59,7 @@ public class CharacterController : MonoBehaviour {
 			body.velocity = new Vector3 (speed.x, body.velocity.y, speed.z);
 		}
 
-		AdjustRigidbodyForward(body, direction, cam.transform.forward, 20f);
+		AdjustRigidbodyForward(direction, cam.transform.forward, 20f);
 
 		if (isJumping) {
 			if (Time.time > jumpTime + 0.2f) {
@@ -91,17 +91,13 @@ public class CharacterController : MonoBehaviour {
 		}
 	}
 
-	public static void AdjustRigidbodyForward(Rigidbody body, Vector3 direction, Vector3 camForward, float speed)
+	void AdjustRigidbodyForward(Vector3 direction, Vector3 camForward, float speed)
     {
         //Only rotate the body when there is motion
         if (direction.magnitude > 0)
         {
-            //The direction of movement
-            Vector3 moveForward = new Vector3(direction.x, 0, direction.z).normalized, forward;
-
-            forward = moveForward;
-
-            body.transform.forward = forward;
+            // Adjust the direction of movement
+            body.transform.forward = new Vector3(direction.x, 0, direction.z).normalized;
         }
     }
 
