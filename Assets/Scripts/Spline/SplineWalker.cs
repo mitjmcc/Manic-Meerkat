@@ -24,6 +24,12 @@ public class SplineWalker : MonoBehaviour {
 		idealTransform.transform.localRotation = transform.localRotation;
 	}
 
+	public void Reset () {
+		progress = 0;
+		idealTransform.transform.position = spline.GetPoint(0);
+		transform.position = idealTransform.transform.position;
+	}
+
 	private void Update () {
 		Vector3 toPlayer = Vector3.ProjectOnPlane (player.position, Vector3.up) - Vector3.ProjectOnPlane (idealTransform.transform.position, Vector3.up);
 		Vector3 moveVector = Vector3.Project (toPlayer, idealTransform.transform.forward);

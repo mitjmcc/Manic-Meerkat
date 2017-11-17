@@ -13,6 +13,8 @@ public class CharacterController : MonoBehaviour {
 	public Camera cam;
 	public PhysicMaterial groundMaterial;
 	public PhysicMaterial jumpMaterial;
+	public Transform groundPlane;
+	public Transform[] spawnPoints;
     #endregion
 
 	#region PrivateVariables
@@ -73,6 +75,12 @@ public class CharacterController : MonoBehaviour {
 
 		if (isBashing) {
 			BashAttack ();
+		}
+
+		if (transform.position.y < groundPlane.position.y) {
+			transform.position = spawnPoints[0].position;
+			body.velocity = Vector3.zero;
+			cam.GetComponent<SplineWalker>().Reset();
 		}
 	}
 

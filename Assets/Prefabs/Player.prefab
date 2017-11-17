@@ -1175,6 +1175,9 @@ MonoBehaviour:
   cam: {fileID: 0}
   groundMaterial: {fileID: 13400000, guid: 4154b7daff8b08449b8dcfeb2e638369, type: 2}
   jumpMaterial: {fileID: 13400000, guid: d4b6d6e8399178a4ebe5b28d4613ca50, type: 2}
+  groundPlane: {fileID: 0}
+  spawnPoints:
+  - {fileID: 0}
 --- !u!136 &136321074577469032
 CapsuleCollider:
   m_ObjectHideFlags: 1
