@@ -33,7 +33,7 @@ public class MainMenu : MonoBehaviour {
 
     public void playGame()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Level1");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Level1");
     }
 
 	public void toCredits()

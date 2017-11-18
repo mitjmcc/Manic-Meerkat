@@ -37,4 +37,15 @@ public class PauseMenu : MonoBehaviour {
 		main.SetActive (gamePaused);
 		Time.timeScale = 1;
 	}
+
+	public void Restart() {
+		Time.timeScale = 1;
+		// Add current scene instead
+		UnityEngine.SceneManagement.SceneManager.LoadScene("Level1");
+	}
+
+	public void Quit() {
+		Time.timeScale = 1;
+		UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+	}
 }
