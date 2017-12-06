@@ -75,6 +75,7 @@ public class CharacterController : MonoBehaviour {
 
 		if (isBashing) {
 			BashAttack ();
+			anim.SetTrigger("bash");
 		}
 
 		if (transform.position.y < groundPlane.position.y) {
@@ -101,7 +102,7 @@ public class CharacterController : MonoBehaviour {
 
 	void AdjustRigidbodyForward(Vector3 direction, Vector3 camForward, float speed)
     {
-        //Only rotate the body when there is motion
+        // Only rotate the body when there is motion
         if (direction.magnitude > 0)
         {
             // Adjust the direction of movement
