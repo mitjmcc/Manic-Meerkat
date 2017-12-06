@@ -10,11 +10,11 @@ public class ScoreManager : MonoBehaviour {
 
 	void Start () {
 		fruit = 0;
-		fruitText.text = "Fruit: 0";
+		fruitText.text = "0";
 	}
 
 	public void CollectFruit() {
 		fruit++;
-		fruitText.text = "Fruit: " + fruit;
+		fruitText.text = fruit.ToString();
 	}
 }
