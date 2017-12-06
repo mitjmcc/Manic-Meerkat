@@ -7,18 +7,24 @@ public class PacingEnemy : MonoBehaviour, IJumpable, IBashable {
 	public Transform[] points = new Transform[2];
 	public float speed;
 	Vector3 target;
-	int index;
+	Vector3 start;
+	float paceAmount;
 
 	void Start() {
-		target = points[index].position;
+		target = points [0].position;
+		start = points [1].position;
 	}
 
 	// Update is called once per frame
 	void Update () {
-		if ((transform.position - target).sqrMagnitude < 0.0001) {
-			target = points[index++ % points.Length].position;
+		paceAmount += speed * Time.deltaTime;
+		if (paceAmount >= 1) {
+			paceAmount = 0;
+			Vector3 temp = target;
+			target = start;
+			start = temp;
 		}
-		transform.position = Vector3.Lerp(transform.position, target, speed * Time.deltaTime);
+		transform.position = Vector3.Lerp(start, target, paceAmount);
 	}
 
 	public void OnJump() {
