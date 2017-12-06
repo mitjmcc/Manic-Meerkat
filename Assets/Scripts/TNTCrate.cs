@@ -2,33 +2,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Crate : MonoBehaviour, IJumpable, IBashable {
+public class TNTCrate : MonoBehaviour, IJumpable, IBashable {
 
-	public GameObject spawn;
 	private Transform spawnPoint;
+	private GameObject explosion;
 
 	public void Start ()
 	{
-		spawnPoint = transform.Find ("SpawnPoint");
+		explosion = transform.Find ("SpawnPoint/Explosion").gameObject;
 	}
 
-	private void breakParts() {
+	public void Explode() {
 		GetComponent<BoxCollider> ().enabled = false;
+		explosion.SetActive (true);
 		foreach (Rigidbody child in GetComponentsInChildren<Rigidbody>()) {
 			child.isKinematic = false;
-			child.AddRelativeForce (Vector3.up * 200);
+			child.AddRelativeForce (Vector3.up * 2000);
 			Destroy (child.gameObject, 2);
 		}
 		Destroy (transform.gameObject, 2.5f);
 	}
 
 	public void OnJump() {
-		Instantiate(spawn, spawnPoint.position, Quaternion.identity);
-		breakParts ();
+		Explode ();
 	}
 
 	public void OnBash() {
-		Instantiate(spawn, spawnPoint.position, Quaternion.identity);
-		breakParts ();
+		Explode ();
 	}
 }
