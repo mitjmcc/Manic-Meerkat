@@ -15,6 +15,7 @@ public class ScoreManager : MonoBehaviour {
 
 	public void CollectFruit() {
 		fruit++;
+		GetComponent<AudioSource> ().Play ();
 		fruitText.text = fruit.ToString();
 	}
 }
