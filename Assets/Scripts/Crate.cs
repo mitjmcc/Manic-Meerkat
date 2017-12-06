@@ -14,6 +14,7 @@ public class Crate : MonoBehaviour, IJumpable, IBashable {
 
 	private void breakParts() {
 		GetComponent<BoxCollider> ().enabled = false;
+		GetComponent<AudioSource> ().Play ();
 		foreach (Rigidbody child in GetComponentsInChildren<Rigidbody>()) {
 			child.isKinematic = false;
 			child.AddRelativeForce (Vector3.up * 200);
