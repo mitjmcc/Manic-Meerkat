@@ -88,9 +88,7 @@ public class CharacterController : MonoBehaviour {
 		}
 
 		if (transform.position.y < groundPlane.position.y) {
-			transform.position = spawnPoints[0].position;
-			body.velocity = Vector3.zero;
-			cam.GetComponent<SplineWalker>().Reset();
+			GameObject.FindObjectOfType<LevelChanger> ().restartLevel ();
 		}
 	}
 
