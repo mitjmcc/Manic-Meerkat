@@ -15,6 +15,7 @@ public class CharacterController : MonoBehaviour {
 	public PhysicMaterial jumpMaterial;
 	public Transform groundPlane;
 	public Transform[] spawnPoints;
+	public TrailRenderer trail;
     #endregion
 
 	#region PrivateVariables
@@ -42,6 +43,14 @@ public class CharacterController : MonoBehaviour {
 	void FixedUpdate() {
 		isJumping = Input.GetButton("Jump") && isGrounded;
 		isBashing = Input.GetButtonDown("Fire1");
+
+		if (anim.GetCurrentAnimatorStateInfo (0).IsName ("kick")) {
+			isGrounded = false;
+			BashAttack ();
+			trail.enabled = true;
+		} else {
+			trail.enabled = false;
+		}
 
 		x = (isGrounded) ? Input.GetAxisRaw("Vertical") : Input.GetAxisRaw("Vertical") / airControlFactor;
 		z = (isGrounded) ? Input.GetAxisRaw("Horizontal") : Input.GetAxisRaw("Horizontal") / airControlFactor;
@@ -74,7 +83,7 @@ public class CharacterController : MonoBehaviour {
 		anim.SetBool("grounded", isGrounded);
 
 		if (isBashing) {
-			BashAttack ();
+			GetComponent<AudioSource> ().Play ();
 			anim.SetTrigger("bash");
 		}
 
