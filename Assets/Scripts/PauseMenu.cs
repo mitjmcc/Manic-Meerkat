@@ -41,11 +41,11 @@ public class PauseMenu : MonoBehaviour {
 	public void Restart() {
 		Time.timeScale = 1;
 		// Add current scene instead
-		UnityEngine.SceneManagement.SceneManager.LoadScene("Level1");
+		GameObject.FindObjectOfType<LevelChanger>().restartLevel();
 	}
 
 	public void Quit() {
 		Time.timeScale = 1;
-		UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+		GameObject.FindObjectOfType<LevelChanger>().loadLevel("MainMenu");
 	}
 }
