@@ -33,7 +33,7 @@ public class MainMenu : MonoBehaviour {
 
     public void playGame()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Level1");
+		GameObject.FindObjectOfType<LevelChanger> ().loadLevel ("Level1");
     }
 
 	public void toCredits()

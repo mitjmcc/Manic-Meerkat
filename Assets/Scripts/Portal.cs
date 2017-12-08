@@ -13,7 +13,7 @@ public class Portal : MonoBehaviour {
 
 	void Update() {
 		if (teleporting && (timer -= Time.deltaTime) < 0) {
-			 UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+			GameObject.FindObjectOfType<LevelChanger>().loadLevel("MainMenu");
 		}
 	}
 

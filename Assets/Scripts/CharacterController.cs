@@ -15,6 +15,7 @@ public class CharacterController : MonoBehaviour {
 	public PhysicMaterial jumpMaterial;
 	public Transform groundPlane;
 	public Transform[] spawnPoints;
+	public TrailRenderer trail;
     #endregion
 
 	#region PrivateVariables
@@ -42,6 +43,14 @@ public class CharacterController : MonoBehaviour {
 	void FixedUpdate() {
 		isJumping = Input.GetButton("Jump") && isGrounded;
 		isBashing = Input.GetButtonDown("Fire1");
+
+		if (anim.GetCurrentAnimatorStateInfo (0).IsName ("kick")) {
+			isGrounded = false;
+			BashAttack ();
+			trail.enabled = true;
+		} else {
+			trail.enabled = false;
+		}
 
 		x = (isGrounded) ? Input.GetAxisRaw("Vertical") : Input.GetAxisRaw("Vertical") / airControlFactor;
 		z = (isGrounded) ? Input.GetAxisRaw("Horizontal") : Input.GetAxisRaw("Horizontal") / airControlFactor;
@@ -74,13 +83,12 @@ public class CharacterController : MonoBehaviour {
 		anim.SetBool("grounded", isGrounded);
 
 		if (isBashing) {
-			BashAttack ();
+			GetComponent<AudioSource> ().Play ();
+			anim.SetTrigger("bash");
 		}
 
 		if (transform.position.y < groundPlane.position.y) {
-			transform.position = spawnPoints[0].position;
-			body.velocity = Vector3.zero;
-			cam.GetComponent<SplineWalker>().Reset();
+			Death();	
 		}
 	}
 
@@ -93,6 +101,12 @@ public class CharacterController : MonoBehaviour {
 		}
 	}
 
+	public void Death() { 
+		anim.SetTrigger("dying");
+		if (!isBashing)
+			GameObject.FindObjectOfType<LevelChanger> ().restartLevel ();
+	}
+
 	void OnAnimatorMove() {
 		if (isGrounded) {
 			transform.position = transform.position + anim.deltaPosition * 1.4f;
@@ -101,7 +115,7 @@ public class CharacterController : MonoBehaviour {
 
 	void AdjustRigidbodyForward(Vector3 direction, Vector3 camForward, float speed)
     {
-        //Only rotate the body when there is motion
+        // Only rotate the body when there is motion
         if (direction.magnitude > 0)
         {
             // Adjust the direction of movement

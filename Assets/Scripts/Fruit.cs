@@ -5,11 +5,8 @@ using UnityEngine;
 public class Fruit : MonoBehaviour, ICollectable {
 	private ScoreManager scoreManager;
 
-	void Start() {
-		scoreManager = GameObject.FindObjectOfType<ScoreManager> ();
-	}
-
 	public void OnCollect() {
+		scoreManager = GameObject.FindObjectOfType<ScoreManager> ();
 		scoreManager.CollectFruit ();
 		gameObject.SetActive(false);
 	}
