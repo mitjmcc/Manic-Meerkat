@@ -101,8 +101,9 @@ public class BossStates : MonoBehaviour
     {
 
         state = State.VICTORY;
-
-        aiSteer.useNavMeshPathPlanning = true;
+        anim.SetTrigger("playerDead");
+        aiSteer.enabled = false;
+        aiSteer.useNavMeshPathPlanning = false;
 
     }
 
