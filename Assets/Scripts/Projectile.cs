@@ -5,13 +5,30 @@ using UnityEngine;
 public class Projectile : MonoBehaviour, IBashable {
 
 	Rigidbody body;
+	private float timer = .25f;
 
 	// Use this for initialization
 	void Start () {
 		body = GetComponent<Rigidbody>();
 	}
 
+	void Update() {
+		timer -= Time.deltaTime;
+	}
+
 	public void OnBash() {
 		body.velocity = -body.velocity;
+	}
+
+	void OnTriggerEnter(Collider col)
+	{
+		CharacterController player = col.gameObject.GetComponent<CharacterController> ();
+		if (player != null) {
+			player.Death();
+		}
+		IBashable bashable = col.gameObject.GetComponent<IBashable>();
+		if (bashable != null && !(timer > 0)) {
+			bashable.OnBash();
+		}
 	}
 }

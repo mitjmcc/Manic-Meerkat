@@ -88,7 +88,7 @@ public class CharacterController : MonoBehaviour {
 		}
 
 		if (transform.position.y < groundPlane.position.y) {
-			GameObject.FindObjectOfType<LevelChanger> ().restartLevel ();
+			Death();	
 		}
 	}
 
@@ -99,6 +99,12 @@ public class CharacterController : MonoBehaviour {
 				bashable.OnBash ();
 			}
 		}
+	}
+
+	public void Death() { 
+		anim.SetTrigger("dying");
+		if (!isBashing)
+			GameObject.FindObjectOfType<LevelChanger> ().restartLevel ();
 	}
 
 	void OnAnimatorMove() {
