@@ -34,7 +34,9 @@ public class BossStates : MonoBehaviour
     {
         FOLLOW,
         RAMPAGE,
-        AWAITDEATH
+        DEATH,
+        VICTORY,
+        TIMER
     }
 
 
@@ -43,7 +45,7 @@ public class BossStates : MonoBehaviour
 
     public float waitTime = 5f;
 
-    protected float beginWaitTime;
+    protected float deltat;
 
 
     AINavSteeringController aiSteer;
@@ -66,12 +68,12 @@ public class BossStates : MonoBehaviour
 
         aiSteer.waypointLoop = false;
         aiSteer.stopAtNextWaypoint = false;
-        transitionToStateA();
+        transitionToStateFollow();
 
     }
 
 
-    void transitionToStateA()
+    void transitionToStateFollow()
     {
 
         state = State.FOLLOW;
@@ -84,7 +86,7 @@ public class BossStates : MonoBehaviour
     }
 
 
-    void transitionToStateB()
+    void transitionToStateRampage()
     {
 
         state = State.RAMPAGE;
@@ -95,17 +97,26 @@ public class BossStates : MonoBehaviour
     }
 
 
-    void transitionToStateC()
+    void transitionToStateVictory()
     {
 
-        state = State.AWAITDEATH;
-
-        aiSteer.setWayPoint(enemy.transform);
+        state = State.VICTORY;
 
         aiSteer.useNavMeshPathPlanning = true;
 
     }
 
+    void transitionToStateDeath()
+    {
+        state = State.DEATH;
+
+    }
+
+    void transitionToTimer()
+    {
+        state = State.TIMER;
+        deltat = 0f;
+    }
 
     // Update is called once per frame
     void Update()
@@ -114,30 +125,46 @@ public class BossStates : MonoBehaviour
         switch (state)
         {
             case State.FOLLOW:
-                float threshold = 2f;
+                float threshold = 2.5f;
                 if (Math.Abs(player.transform.position.x - rbody.position.x) < threshold &&
                 Math.Abs(player.transform.position.y - rbody.position.y) < threshold &&
                 Math.Abs(player.transform.position.z - rbody.position.z) < threshold)
                 {
                     enemyDead = true;
-                    enemy.SetActive(false);
                     AudioSource.PlayClipAtPoint(this.death, this.transform.position);
                 }
+
                 if (enemyDead)
-                    transitionToStateA();
-                Debug.Log(aiSteer.transform.position.ToString());
-                transform.LookAt(player.transform);
+                {
+                    transitionToStateVictory();
+                    enemyDead = false;
+                }
+                transitionToStateFollow();
+                transform.LookAt(new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z));
+                //transform.LookAt(player.transform);
                 aiSteer.setWayPoint(player.transform);
                 break;
 
             case State.RAMPAGE:
                 if (aiSteer.waypointsComplete())
-                    transitionToStateB();
+                    transitionToStateRampage();
                 break;
 
-            case State.AWAITDEATH:
-                if (aiSteer.waypointsComplete())
-                    transitionToStateC();
+            case State.DEATH:
+                break;
+            case State.VICTORY:
+                enemyDead = false;
+                transitionToTimer();
+                break;
+
+            case State.TIMER:
+                deltat += Time.deltaTime;
+                if (deltat > waitTime)
+                {
+                    CharacterController pl = player.gameObject.GetComponent<CharacterController>();
+                    pl.Death();
+                    transitionToStateFollow();
+                }
                 break;
 
             default:
