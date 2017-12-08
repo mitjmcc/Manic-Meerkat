@@ -1419,7 +1419,7 @@ MonoBehaviour:
   updateMode: 0
   mecanimInputParamForward: magnitude
   mecanimInputParamTurn: 
-  mecanimInputForwardSpeedCap: 1
+  mecanimInputForwardSpeedCap: 0.85
   mecanimMaxSpeed: 15
   mecanimMaxTurn: 180
   waypoints: []
@@ -1471,6 +1471,7 @@ MonoBehaviour:
   debugAgentHasPath: 0
   debugMecanimInputTurn: 0
   debugMecanimInputForward: 0
+  debugg: 0
 --- !u!1001 &1845578781
 Prefab:
   m_ObjectHideFlags: 0

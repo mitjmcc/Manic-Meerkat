@@ -126,6 +126,7 @@ public class BossStates : MonoBehaviour
                 if (enemyDead)
                     transitionToStateA();
                 Debug.Log(aiSteer.transform.position.ToString());
+                transform.LookAt(player.transform);
                 aiSteer.setWayPoint(player.transform);
                 break;
 
