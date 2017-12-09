@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterController : MonoBehaviour
-{
-
-
+public class CharacterController : MonoBehaviour {
     #region PublicVariables
     [Range(0f, 200f)] public float moveSpeed;
     [Range(0f, 30f)] public float jumpHeight;
@@ -37,26 +34,21 @@ public class CharacterController : MonoBehaviour
     #endregion
 
     // Use this for initialization
-    void Start()
-    {
+    void Start() {
         body = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
         collider = GetComponent<CapsuleCollider>();
     }
 
-    void FixedUpdate()
-    {
+    void FixedUpdate() {
         isJumping = Input.GetButton("Jump") && isGrounded;
         isBashing = Input.GetButtonDown("Fire1");
 
-        if (anim.GetCurrentAnimatorStateInfo(0).IsName("kick"))
-        {
+        if (anim.GetCurrentAnimatorStateInfo(0).IsName("kick")) {
             isGrounded = false;
             BashAttack();
             trail.enabled = true;
-        }
-        else
-        {
+        } else {
             trail.enabled = false;
         }
 
@@ -65,33 +57,24 @@ public class CharacterController : MonoBehaviour
 
         Vector3 direction = cam.transform.TransformVector(new Vector3(z, 0, x));
 
-        if (direction.magnitude > 0)
-        {
+        if (direction.magnitude > 0) {
             speed = direction.normalized * moveSpeed;
-        }
-        else
-        {
+        } else {
             speed = Vector3.zero;
             anim.speed = 1;
-        }
-        if (direction.magnitude == 0f)
-        {
             StopAudio();
         }
 
         anim.SetFloat("magnitude", Mathf.Lerp(anim.GetFloat("magnitude"), Mathf.Min(1, direction.magnitude), Time.fixedDeltaTime * 12f));
 
-        if (!isGrounded)
-        {
+        if (!isGrounded) {
             body.velocity = new Vector3(speed.x, body.velocity.y, speed.z);
         }
 
         AdjustRigidbodyForward(direction, cam.transform.forward, 20f);
 
-        if (isJumping)
-        {
-            if (Time.time > jumpTime + 0.2f)
-            {
+        if (isJumping) {
+            if (Time.time > jumpTime + 0.2f) {
                 anim.SetTrigger("jump");
                 body.velocity = new Vector3(body.velocity.x, jumpHeight, body.velocity.y);
                 jumpTime = Time.time;
@@ -100,83 +83,67 @@ public class CharacterController : MonoBehaviour
 
         anim.SetBool("grounded", isGrounded);
 
-        if (isBashing)
-        {
+        if (isBashing) {
             GetComponent<AudioSource>().Play();
             anim.SetTrigger("bash");
         }
 
-        if (transform.position.y < groundPlane.position.y)
-        {
+        if (transform.position.y < groundPlane.position.y) {
             Death();
         }
     }
 
-    void BashAttack()
-    {
-        foreach (Collider c in Physics.OverlapSphere(transform.position, 2))
-        {
+    void BashAttack() {
+        foreach (Collider c in Physics.OverlapSphere(transform.position, 2)) {
             IBashable bashable = c.gameObject.GetComponent<IBashable>();
-            if (bashable != null)
-            {
+            if (bashable != null) {
                 bashable.OnBash();
             }
         }
     }
 
-    public void Death()
-    {
-        if (!isDead)
-        {
+    public void Death() {
+        if (!isDead) {
             anim.SetTrigger("dying");
             GameObject.FindObjectOfType<LevelChanger>().restartLevel();
         }
         isDead = true;
     }
-    public void FootStep()
-    {
+
+    public void FootStep() {
         audioS.enabled = true;
-        if (!audioS.isPlaying)
-        {
+        if (!audioS.isPlaying) {
             audioS.Play();
         }
     }
 
-    public void StopAudio()
-    {
+    public void StopAudio() {
         audioS.enabled = false;
         audioS.Stop();
     }
 
-    void OnAnimatorMove()
-    {
-        if (isGrounded)
-        {
+    void OnAnimatorMove() {
+        if (isGrounded) {
             transform.position = transform.position + anim.deltaPosition * 1.4f;
         }
     }
 
-    void AdjustRigidbodyForward(Vector3 direction, Vector3 camForward, float speed)
-    {
+    void AdjustRigidbodyForward(Vector3 direction, Vector3 camForward, float speed) {
         // Only rotate the body when there is motion
-        if (direction.magnitude > 0)
-        {
+        if (direction.magnitude > 0) {
             // Adjust the direction of movement
             body.transform.forward = new Vector3(direction.x, 0, direction.z).normalized;
         }
     }
 
-    void OnCollisionEnter(Collision col)
-    {
+    void OnCollisionEnter(Collision col) {
         IJumpable jumpable = col.gameObject.GetComponent<IJumpable>();
         TNTCrate tnt = col.gameObject.GetComponent<TNTCrate>();
-        if (jumpable != null)
-        {
-            foreach (ContactPoint contact in col.contacts)
-            {
+        if (jumpable != null) {
+            foreach (ContactPoint contact in col.contacts) {
                 // Landing on object
-                if (body.transform.position.y > col.gameObject.transform.position.y && col.relativeVelocity.y > 0.1f)
-                {
+                if (body.transform.position.y > col.gameObject.transform.position.y
+					&& col.relativeVelocity.y > 0.1f) {
                     jumpable.OnJump();
                     if (tnt == null)
                         body.velocity = new Vector3(body.velocity.x, boxJumpHeight, body.velocity.y);
@@ -184,9 +151,8 @@ public class CharacterController : MonoBehaviour
                         Death();
                     break;
                     // Below the object
-                }
-                else if (body.transform.position.y < col.gameObject.transform.position.y && col.relativeVelocity.y < -0.1f)
-                {
+                } else if (body.transform.position.y < col.gameObject.transform.position.y
+					&& col.relativeVelocity.y < -0.1f) {
                     jumpable.OnJump();
                     if (tnt == null)
                         body.velocity = new Vector3(body.velocity.x, -boxJumpHeight, body.velocity.y);
@@ -194,56 +160,42 @@ public class CharacterController : MonoBehaviour
                         Death();
                     break;
                     // Hit TNT Crate
-                }
-                else if (tnt != null)
-                {
+                } else if (tnt != null) {
                     tnt.Explode();
                     Death();
                     // Hit by an enemy
-                }
-                else if (col.gameObject.CompareTag("Enemy") && !anim.GetCurrentAnimatorStateInfo(0).IsName("kick"))
-                {
+                } else if (col.gameObject.CompareTag("Enemy")
+					&& !anim.GetCurrentAnimatorStateInfo(0).IsName("kick")) {
                     Death();
                 }
             }
         }
     }
 
-    void OnTriggerEnter(Collider col)
-    {
+    void OnTriggerEnter(Collider col) {
         ICollectable collectable = col.gameObject.GetComponent<ICollectable>();
-        if (collectable != null)
-        {
+        if (collectable != null) {
             collectable.OnCollect();
-        }
-        else if (col.gameObject.CompareTag("Enemy") && !anim.GetCurrentAnimatorStateInfo(0).IsName("kick"))
-        {
+        } else if (col.gameObject.CompareTag("Enemy")
+			&& !anim.GetCurrentAnimatorStateInfo(0).IsName("kick")) {
             Death();
         }
     }
 
-    void OnCollisionStay(Collision col)
-    {
-        if (col.gameObject.CompareTag("Ground"))
-        {
+    void OnCollisionStay(Collision col) {
+        if (col.gameObject.CompareTag("Ground")) {
             isGrounded = true;
             collider.material = groundMaterial;
-        }
-        else
-        {
+        } else {
             isTouchingWall = true;
         }
     }
 
-    void OnCollisionExit(Collision col)
-    {
-        if (col.gameObject.CompareTag("Ground"))
-        {
+    void OnCollisionExit(Collision col) {
+        if (col.gameObject.CompareTag("Ground")) {
             isGrounded = false;
             collider.material = jumpMaterial;
-        }
-        else
-        {
+        } else {
             isTouchingWall = false;
         }
     }
