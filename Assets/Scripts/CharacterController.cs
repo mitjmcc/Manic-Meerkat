@@ -2,121 +2,161 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterController : MonoBehaviour {
+public class CharacterController : MonoBehaviour
+{
 
 
-	#region PublicVariables
+    #region PublicVariables
     [Range(0f, 200f)] public float moveSpeed;
     [Range(0f, 30f)] public float jumpHeight;
-	[Range(0f, 30f)] public float boxJumpHeight;
-	public float airControlFactor = 2;
-	public Camera cam;
-	public PhysicMaterial groundMaterial;
-	public PhysicMaterial jumpMaterial;
-	public Transform groundPlane;
-	public Transform[] spawnPoints;
-	public TrailRenderer trail;
+    [Range(0f, 30f)] public float boxJumpHeight;
+    public float airControlFactor = 2;
+    public Camera cam;
+    public PhysicMaterial groundMaterial;
+    public PhysicMaterial jumpMaterial;
+    public Transform groundPlane;
+    public Transform[] spawnPoints;
+    public TrailRenderer trail;
+    public AudioSource audioS;
     #endregion
 
-	#region PrivateVariables
+    #region PrivateVariables
     Rigidbody body;
-	Transform model;
+    Transform model;
     Animator anim;
     Vector3 speed;
     Vector3 forward;
 
     float x, y, z, jumpTime;
     bool isGrounded;
-	bool isTouchingWall;
+    bool isTouchingWall;
     bool isJumping;
-	bool isBashing;
-	bool isDead;
-	CapsuleCollider collider;
+    bool isBashing;
+    bool isDead;
+    CapsuleCollider collider;
     #endregion
 
-	// Use this for initialization
-    void Start() {
-		body = GetComponent<Rigidbody>();
-		anim = GetComponent<Animator>();
-		collider = GetComponent<CapsuleCollider> ();
-	}
-	
-	void FixedUpdate() {
-		isJumping = Input.GetButton("Jump") && isGrounded;
-		isBashing = Input.GetButtonDown("Fire1");
+    // Use this for initialization
+    void Start()
+    {
+        body = GetComponent<Rigidbody>();
+        anim = GetComponent<Animator>();
+        collider = GetComponent<CapsuleCollider>();
+    }
 
-		if (anim.GetCurrentAnimatorStateInfo (0).IsName ("kick")) {
-			isGrounded = false;
-			BashAttack ();
-			trail.enabled = true;
-		} else {
-			trail.enabled = false;
-		}
+    void FixedUpdate()
+    {
+        isJumping = Input.GetButton("Jump") && isGrounded;
+        isBashing = Input.GetButtonDown("Fire1");
 
-		x = (isGrounded) ? Input.GetAxisRaw("Vertical") : Input.GetAxisRaw("Vertical") / airControlFactor;
-		z = (isGrounded) ? Input.GetAxisRaw("Horizontal") : Input.GetAxisRaw("Horizontal") / airControlFactor;
+        if (anim.GetCurrentAnimatorStateInfo(0).IsName("kick"))
+        {
+            isGrounded = false;
+            BashAttack();
+            trail.enabled = true;
+        }
+        else
+        {
+            trail.enabled = false;
+        }
 
-		Vector3 direction = cam.transform.TransformVector(new Vector3 (z, 0, x));
+        x = (isGrounded) ? Input.GetAxisRaw("Vertical") : Input.GetAxisRaw("Vertical") / airControlFactor;
+        z = (isGrounded) ? Input.GetAxisRaw("Horizontal") : Input.GetAxisRaw("Horizontal") / airControlFactor;
 
-		if (direction.magnitude > 0) {
-			speed = direction.normalized * moveSpeed;
-		} else {
-			speed = Vector3.zero;
-			anim.speed = 1;
-		}
+        Vector3 direction = cam.transform.TransformVector(new Vector3(z, 0, x));
 
-		anim.SetFloat("magnitude", Mathf.Lerp(anim.GetFloat("magnitude"), Mathf.Min(1, direction.magnitude), Time.fixedDeltaTime * 12f));
+        if (direction.magnitude > 0)
+        {
+            speed = direction.normalized * moveSpeed;
+        }
+        else
+        {
+            speed = Vector3.zero;
+            anim.speed = 1;
+        }
+        if (direction.magnitude == 0f)
+        {
+            StopAudio();
+        }
 
-		if (!isGrounded) {
-			body.velocity = new Vector3 (speed.x, body.velocity.y, speed.z);
-		}
+        anim.SetFloat("magnitude", Mathf.Lerp(anim.GetFloat("magnitude"), Mathf.Min(1, direction.magnitude), Time.fixedDeltaTime * 12f));
 
-		AdjustRigidbodyForward(direction, cam.transform.forward, 20f);
+        if (!isGrounded)
+        {
+            body.velocity = new Vector3(speed.x, body.velocity.y, speed.z);
+        }
 
-		if (isJumping) {
-			if (Time.time > jumpTime + 0.2f) {
-				anim.SetTrigger("jump");
-				body.velocity = new Vector3 (body.velocity.x, jumpHeight, body.velocity.y);
-				jumpTime = Time.time;
-			}
-		}
+        AdjustRigidbodyForward(direction, cam.transform.forward, 20f);
 
-		anim.SetBool("grounded", isGrounded);
+        if (isJumping)
+        {
+            if (Time.time > jumpTime + 0.2f)
+            {
+                anim.SetTrigger("jump");
+                body.velocity = new Vector3(body.velocity.x, jumpHeight, body.velocity.y);
+                jumpTime = Time.time;
+            }
+        }
 
-		if (isBashing) {
-			GetComponent<AudioSource> ().Play ();
-			anim.SetTrigger("bash");
-		}
+        anim.SetBool("grounded", isGrounded);
 
-		if (transform.position.y < groundPlane.position.y) {
-			Death();	
-		}
-	}
+        if (isBashing)
+        {
+            GetComponent<AudioSource>().Play();
+            anim.SetTrigger("bash");
+        }
 
-	void BashAttack() {
-		foreach(Collider c in Physics.OverlapSphere(transform.position, 2)) {
-			IBashable bashable = c.gameObject.GetComponent<IBashable> ();
-			if (bashable != null) {
-				bashable.OnBash ();
-			}
-		}
-	}
+        if (transform.position.y < groundPlane.position.y)
+        {
+            Death();
+        }
+    }
 
-	public void Death() {
-		if (!isDead) {
-			anim.SetTrigger("dying");
-			GameObject.FindObjectOfType<LevelChanger> ().restartLevel ();
-		}
-		isDead = true;
-	}
+    void BashAttack()
+    {
+        foreach (Collider c in Physics.OverlapSphere(transform.position, 2))
+        {
+            IBashable bashable = c.gameObject.GetComponent<IBashable>();
+            if (bashable != null)
+            {
+                bashable.OnBash();
+            }
+        }
+    }
 
-	void OnAnimatorMove() {
-		if (isGrounded) {
-			transform.position = transform.position + anim.deltaPosition * 1.4f;
-		}
-	}
+    public void Death()
+    {
+        if (!isDead)
+        {
+            anim.SetTrigger("dying");
+            GameObject.FindObjectOfType<LevelChanger>().restartLevel();
+        }
+        isDead = true;
+    }
+    public void FootStep()
+    {
+        audioS.enabled = true;
+        if (!audioS.isPlaying)
+        {
+            audioS.Play();
+        }
+    }
 
-	void AdjustRigidbodyForward(Vector3 direction, Vector3 camForward, float speed)
+    public void StopAudio()
+    {
+        audioS.enabled = false;
+        audioS.Stop();
+    }
+
+    void OnAnimatorMove()
+    {
+        if (isGrounded)
+        {
+            transform.position = transform.position + anim.deltaPosition * 1.4f;
+        }
+    }
+
+    void AdjustRigidbodyForward(Vector3 direction, Vector3 camForward, float speed)
     {
         // Only rotate the body when there is motion
         if (direction.magnitude > 0)
@@ -126,67 +166,85 @@ public class CharacterController : MonoBehaviour {
         }
     }
 
-	void OnCollisionEnter(Collision col)
-	{
-		IJumpable jumpable = col.gameObject.GetComponent<IJumpable> ();
-		TNTCrate tnt = col.gameObject.GetComponent<TNTCrate>();
-		if (jumpable != null) {
-			foreach (ContactPoint contact in col.contacts) {
-				// Landing on object
-				if (body.transform.position.y > col.gameObject.transform.position.y && col.relativeVelocity.y > 0.1f) {
-					jumpable.OnJump ();
-					if (tnt == null)
-						body.velocity = new Vector3(body.velocity.x, boxJumpHeight, body.velocity.y);
-					else
-						Death();
-					break;
-				// Below the object
-				} else if (body.transform.position.y < col.gameObject.transform.position.y && col.relativeVelocity.y < -0.1f) {
-					jumpable.OnJump ();
-					if (tnt == null)
-						body.velocity = new Vector3(body.velocity.x, -boxJumpHeight, body.velocity.y);
-					else 
-						Death();
-					break;
-				// Hit TNT Crate
-				} else if (tnt != null) {
-					tnt.Explode();
-					Death();
-				// Hit by an enemy
-				} else if (col.gameObject.CompareTag("Enemy") && !anim.GetCurrentAnimatorStateInfo (0).IsName ("kick")) {
-					Death();
-				}
-			}
-		}
-	}
+    void OnCollisionEnter(Collision col)
+    {
+        IJumpable jumpable = col.gameObject.GetComponent<IJumpable>();
+        TNTCrate tnt = col.gameObject.GetComponent<TNTCrate>();
+        if (jumpable != null)
+        {
+            foreach (ContactPoint contact in col.contacts)
+            {
+                // Landing on object
+                if (body.transform.position.y > col.gameObject.transform.position.y && col.relativeVelocity.y > 0.1f)
+                {
+                    jumpable.OnJump();
+                    if (tnt == null)
+                        body.velocity = new Vector3(body.velocity.x, boxJumpHeight, body.velocity.y);
+                    else
+                        Death();
+                    break;
+                    // Below the object
+                }
+                else if (body.transform.position.y < col.gameObject.transform.position.y && col.relativeVelocity.y < -0.1f)
+                {
+                    jumpable.OnJump();
+                    if (tnt == null)
+                        body.velocity = new Vector3(body.velocity.x, -boxJumpHeight, body.velocity.y);
+                    else
+                        Death();
+                    break;
+                    // Hit TNT Crate
+                }
+                else if (tnt != null)
+                {
+                    tnt.Explode();
+                    Death();
+                    // Hit by an enemy
+                }
+                else if (col.gameObject.CompareTag("Enemy") && !anim.GetCurrentAnimatorStateInfo(0).IsName("kick"))
+                {
+                    Death();
+                }
+            }
+        }
+    }
 
-	void OnTriggerEnter(Collider col)
-	{
-		ICollectable collectable = col.gameObject.GetComponent<ICollectable> ();
-		if (collectable != null) {
-			collectable.OnCollect ();
-		} else if (col.gameObject.CompareTag("Enemy") && !anim.GetCurrentAnimatorStateInfo (0).IsName ("kick")) {
-			Death();
-		}
-	}
+    void OnTriggerEnter(Collider col)
+    {
+        ICollectable collectable = col.gameObject.GetComponent<ICollectable>();
+        if (collectable != null)
+        {
+            collectable.OnCollect();
+        }
+        else if (col.gameObject.CompareTag("Enemy") && !anim.GetCurrentAnimatorStateInfo(0).IsName("kick"))
+        {
+            Death();
+        }
+    }
 
-	void OnCollisionStay(Collision col)
-	{
-		if (col.gameObject.CompareTag ("Ground")) {
-			isGrounded = true;
-			collider.material = groundMaterial;
-		} else {
-			isTouchingWall = true;
-		}
-	}
+    void OnCollisionStay(Collision col)
+    {
+        if (col.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = true;
+            collider.material = groundMaterial;
+        }
+        else
+        {
+            isTouchingWall = true;
+        }
+    }
 
     void OnCollisionExit(Collision col)
     {
-		if (col.gameObject.CompareTag ("Ground")) {
-			isGrounded = false;
-			collider.material = jumpMaterial;
-		} else {
-			isTouchingWall = false;
-		}
+        if (col.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = false;
+            collider.material = jumpMaterial;
+        }
+        else
+        {
+            isTouchingWall = false;
+        }
     }
 }
