@@ -22,10 +22,6 @@ public class Projectile : MonoBehaviour, IBashable {
 
 	void OnTriggerEnter(Collider col)
 	{
-		CharacterController player = col.gameObject.GetComponent<CharacterController> ();
-		if (player != null) {
-			player.Death();
-		}
 		IBashable bashable = col.gameObject.GetComponent<IBashable>();
 		if (bashable != null && !(timer > 0)) {
 			bashable.OnBash();

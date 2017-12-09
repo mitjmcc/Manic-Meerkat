@@ -30,6 +30,7 @@ public class CharacterController : MonoBehaviour {
 	bool isTouchingWall;
     bool isJumping;
 	bool isBashing;
+	bool isDead;
 	CapsuleCollider collider;
     #endregion
 
@@ -101,10 +102,12 @@ public class CharacterController : MonoBehaviour {
 		}
 	}
 
-	public void Death() { 
-		anim.SetTrigger("dying");
-		if (!isBashing)
+	public void Death() {
+		if (!isDead) {
+			anim.SetTrigger("dying");
 			GameObject.FindObjectOfType<LevelChanger> ().restartLevel ();
+		}
+		isDead = true;
 	}
 
 	void OnAnimatorMove() {
@@ -126,16 +129,32 @@ public class CharacterController : MonoBehaviour {
 	void OnCollisionEnter(Collision col)
 	{
 		IJumpable jumpable = col.gameObject.GetComponent<IJumpable> ();
+		TNTCrate tnt = col.gameObject.GetComponent<TNTCrate>();
 		if (jumpable != null) {
 			foreach (ContactPoint contact in col.contacts) {
-				if (body.transform.position.y > col.gameObject.transform.position.y && col.relativeVelocity.y > 1f) {
+				// Landing on object
+				if (body.transform.position.y > col.gameObject.transform.position.y && col.relativeVelocity.y > 0.1f) {
 					jumpable.OnJump ();
-					body.velocity = new Vector3(body.velocity.x, boxJumpHeight, body.velocity.y);
+					if (tnt == null)
+						body.velocity = new Vector3(body.velocity.x, boxJumpHeight, body.velocity.y);
+					else
+						Death();
 					break;
-				} else if (body.transform.position.y < col.gameObject.transform.position.y && col.relativeVelocity.y < 1f) {
+				// Below the object
+				} else if (body.transform.position.y < col.gameObject.transform.position.y && col.relativeVelocity.y < -0.1f) {
 					jumpable.OnJump ();
-					body.velocity = new Vector3(body.velocity.x, -boxJumpHeight, body.velocity.y);
+					if (tnt == null)
+						body.velocity = new Vector3(body.velocity.x, -boxJumpHeight, body.velocity.y);
+					else 
+						Death();
 					break;
+				// Hit TNT Crate
+				} else if (tnt != null) {
+					tnt.Explode();
+					Death();
+				// Hit by an enemy
+				} else if (col.gameObject.CompareTag("Enemy") && !anim.GetCurrentAnimatorStateInfo (0).IsName ("kick")) {
+					Death();
 				}
 			}
 		}
@@ -146,6 +165,8 @@ public class CharacterController : MonoBehaviour {
 		ICollectable collectable = col.gameObject.GetComponent<ICollectable> ();
 		if (collectable != null) {
 			collectable.OnCollect ();
+		} else if (col.gameObject.CompareTag("Enemy") && !anim.GetCurrentAnimatorStateInfo (0).IsName ("kick")) {
+			Death();
 		}
 	}
 

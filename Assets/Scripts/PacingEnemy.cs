@@ -27,14 +27,6 @@ public class PacingEnemy : MonoBehaviour, IJumpable, IBashable {
 		transform.position = Vector3.Lerp(start, target, paceAmount);
 	}
 
-	void OnTriggerEnter(Collider col)
-	{
-		CharacterController player = col.gameObject.GetComponent<CharacterController> ();
-		if (player != null) {
-			player.Death();
-		}
-	}
-
 	public void OnJump() {
 		gameObject.SetActive(false);
 	}

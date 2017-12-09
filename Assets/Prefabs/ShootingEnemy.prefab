@@ -25,7 +25,7 @@ GameObject:
   - component: {fileID: 114820978751864566}
   m_Layer: 0
   m_Name: ShootingEnemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -176,7 +176,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a9fb44aaeef22d458f74007db8b883c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  angleOfCone: 60
+  angle: 15
   shootTime: 3
   projectile: {fileID: 1618907925415822, guid: e1b6629833abe2e4ea62c07f17e5f9e9, type: 2}
   projectileVelocity: {x: 12, y: 14}
@@ -190,6 +190,6 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.5
-  m_Height: 2
+  m_Height: 3
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}

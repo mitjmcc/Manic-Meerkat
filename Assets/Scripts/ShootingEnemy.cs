@@ -42,14 +42,6 @@ public class ShootingEnemy : MonoBehaviour, IJumpable, IBashable {
 			+ transform.up * projectileVelocity.y;
 	}
 
-	void OnTriggerEnter(Collider col)
-	{
-		CharacterController player = col.gameObject.GetComponent<CharacterController> ();
-		if (player != null) {
-			player.Death();
-		}
-	}
-
 	public void OnJump() {
 		gameObject.SetActive(false);
 	}
