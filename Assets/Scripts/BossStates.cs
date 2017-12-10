@@ -7,36 +7,35 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class BossStates : MonoBehaviour
 {
-
+    #region public variables
     public GameObject player;
     public AudioClip death;
+    #endregion
+
+    #region private variables
     private GameObject enemy;
-    public Animator anim;
+    private Animator anim;
     private Rigidbody rbody;
-    public static Boolean enemyDead = false;
-    public static int score = 0;
-    private System.Random rand = new System.Random();
+    private NavMeshAgent agent;
+    private State state;
     private float angryTimer = 0f;
+    private int health;
+    private float angryTrigger = 8f;
+    private float sadTrigger = 5f;
+    private float waitTime = 3f;
+    protected float deltat;
+    #endregion
 
     public enum State
     {
         FOLLOW,
         ANGRY,
         RAMPAGE,
+        MISSED,
         DEATH,
         VICTORY,
         TIMER
     }
-
-
-
-    public State state = State.FOLLOW;
-
-    public float waitTime = 5f;
-
-    protected float deltat;
-
-    NavMeshAgent agent;
 
 
     // Use this for initialization
@@ -54,6 +53,8 @@ public class BossStates : MonoBehaviour
         Debug.Log(transform.position);
         Debug.Log(player.transform.position);
 
+        health = 3;
+        state = State.FOLLOW;
     }
 
 
@@ -80,7 +81,17 @@ public class BossStates : MonoBehaviour
     {
         state = State.RAMPAGE;
 
+        angryTimer = 0f;
+
         Debug.Log(state);
+    }
+
+
+    void transitionToStateMissed()
+    {
+        state = State.MISSED;
+
+        anim.SetTrigger("getSad");
     }
 
 
@@ -96,6 +107,7 @@ public class BossStates : MonoBehaviour
     void transitionToStateDeath()
     {
         state = State.DEATH;
+        anim.SetTrigger("isDead");
 
         Debug.Log(state);
     }
@@ -110,26 +122,21 @@ public class BossStates : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         switch (state)
         {
 		case State.FOLLOW:
 			float threshold = 2.5f;
 			angryTimer += Time.deltaTime;
+            // Kills the player and causes the player to scream if the boss touches them
 			if (Math.Abs (player.transform.position.x - rbody.position.x) < threshold &&
 			    Math.Abs (player.transform.position.y - rbody.position.y) < threshold &&
 			    Math.Abs (player.transform.position.z - rbody.position.z) < threshold) {
-				enemyDead = true;
-				AudioSource.PlayClipAtPoint (this.death, this.transform.position);
+                    transitionToStateVictory();
+                    AudioSource.PlayClipAtPoint (this.death, this.transform.position);
 			}
 
-			if (angryTimer >= 50f) {
+			if (angryTimer >= angryTrigger) {
 				transitionToStateAngry ();
-			}
-
-			if (enemyDead) {
-				transitionToStateVictory ();
-				enemyDead = false;
 			}
 
 			anim.SetFloat ("magnitude", 0.7f);
@@ -149,17 +156,27 @@ public class BossStates : MonoBehaviour
 
             case State.RAMPAGE:
 				anim.SetFloat ("magnitude", 1.0f);
+                angryTimer += Time.deltaTime;
+                if (angryTimer >= sadTrigger)
+                {
+                    transitionToStateMissed();
+                }
 
-				//Agent turns to walk straight toward the player
-				transform.LookAt(player.transform.position);
+                //Agent turns to walk straight toward the player
+                transform.LookAt(player.transform.position);
+                break;
+
+            case State.MISSED:
+                transitionToStateFollow();
                 break;
 
             case State.DEATH:
 				anim.SetFloat ("magnitude", 0.0f);
+                transitionToTimer();
                 break;
+
             case State.VICTORY:
 				anim.SetFloat ("magnitude", 0.0f);
-                enemyDead = false;
                 transitionToTimer();
                 break;
 
@@ -167,10 +184,18 @@ public class BossStates : MonoBehaviour
                 deltat += Time.deltaTime;
                 if (deltat > waitTime)
                 {
-                    CharacterController pl = player.gameObject.GetComponent<CharacterController>();
-                    pl.Death();
-                    transitionToStateFollow();
+                    if (health > 0)
+                    {
+                        CharacterController pl = player.gameObject.GetComponent<CharacterController>();
+                        pl.Death();
+                        transitionToStateFollow();
+                    }
+                    else
+                    {
+                        GameObject.FindObjectOfType<LevelChanger>().loadLevel("MainMenu");
+                    }
                 }
+                
                 break;
 
             default:
@@ -186,7 +211,18 @@ public class BossStates : MonoBehaviour
     {
         if (collision.gameObject.tag.Equals("tntbox") && state.Equals(State.RAMPAGE))
         {
-            Debug.Log("Boom");
+            collision.gameObject.GetComponent<TNTCrate>().Explode();
+            health--;
+            if (health <= 0)
+            {
+                transitionToStateDeath();
+            }
+            else
+            {
+                anim.SetTrigger("isHit");
+                transitionToStateFollow();
+            }
+            Debug.Log(health);
         }
     }
 }
