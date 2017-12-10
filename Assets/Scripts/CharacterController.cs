@@ -35,6 +35,7 @@ public class CharacterController : MonoBehaviour {
 	private AudioSource jump;
 	private AudioSource bash;
 	private AudioSource death;
+	private AudioSource bashsource;
     #endregion
 
     // Use this for initialization
@@ -45,6 +46,7 @@ public class CharacterController : MonoBehaviour {
 		footstep = transform.Find ("Footstep").GetComponent<AudioSource> ();
 		jump = transform.Find ("Jump").GetComponent<AudioSource> ();
 		death = transform.Find ("Death").GetComponent<AudioSource> ();
+		bashsource = transform.Find ("Bash").GetComponent<AudioSource> ();
 		bash = GetComponent<AudioSource> ();
     }
 
@@ -111,6 +113,7 @@ public class CharacterController : MonoBehaviour {
             IBashable bashable = c.gameObject.GetComponent<IBashable>();
             if (bashable != null) {
                 bashable.OnBash();
+				bashsource.Play ();
             }
         }
     }
@@ -151,6 +154,7 @@ public class CharacterController : MonoBehaviour {
                 if (body.transform.position.y > col.gameObject.transform.position.y
 					&& col.relativeVelocity.y > 0.1f) {
                     jumpable.OnJump();
+					bashsource.Play ();
                     if (tnt == null)
                         body.velocity = new Vector3(body.velocity.x, boxJumpHeight, body.velocity.y);
                     else
