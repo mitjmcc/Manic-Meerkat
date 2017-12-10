@@ -10,10 +10,11 @@ public class Portal : MonoBehaviour {
 	private bool teleporting;
 	private float timer;
 
+	public string level;
 
 	void Update() {
 		if (teleporting && (timer -= Time.deltaTime) < 0) {
-			GameObject.FindObjectOfType<LevelChanger>().loadLevel("MainMenu");
+			GameObject.FindObjectOfType<LevelChanger>().loadLevel(level);
 		}
 	}
 

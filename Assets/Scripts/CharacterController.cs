@@ -114,6 +114,9 @@ public class CharacterController : MonoBehaviour {
             if (bashable != null) {
                 bashable.OnBash();
 				bashsource.Play ();
+				TNTCrate tnt = c.gameObject.GetComponent<TNTCrate>();
+				if (tnt != null)
+					Death();
             }
         }
     }

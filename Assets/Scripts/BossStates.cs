@@ -87,6 +87,8 @@ public class BossStates : MonoBehaviour
     {
         state = State.RAMPAGE;
 
+		AudioSource.PlayClipAtPoint (this.death, this.transform.position);
+
         angryTimer = 0f;
 
         Debug.Log(state);
