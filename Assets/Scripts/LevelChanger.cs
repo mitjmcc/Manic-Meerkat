@@ -15,10 +15,14 @@ public class LevelChanger : MonoBehaviour
 		SceneManager.LoadScene (name);
 	}
 
-	IEnumerator restartScene()
+	IEnumerator restartScene(bool fromMenu)
 	{
-		anim.SetTrigger ("Close");
-		yield return new WaitForSeconds (1);
+		if (fromMenu) {
+			anim.SetTrigger ("Close");
+		} else {
+			anim.SetTrigger ("Death");
+		}
+		yield return new WaitForSeconds (2);
 		SceneManager.LoadScene (SceneManager.GetActiveScene().name);
 	}
 
@@ -29,13 +33,13 @@ public class LevelChanger : MonoBehaviour
 		Application.Quit ();
 	}
 
-	public void restartLevel()
+	public void restartLevel(bool fromMenu)
 	{
 		if (loading) {
 			return;
 		}
 		loading = true;
-		StartCoroutine (restartScene ());
+		StartCoroutine (restartScene (fromMenu));
 	}
 
 	public void loadLevel(string name)

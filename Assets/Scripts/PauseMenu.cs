@@ -41,7 +41,7 @@ public class PauseMenu : MonoBehaviour {
 	public void Restart() {
 		Time.timeScale = 1;
 		// Add current scene instead
-		GameObject.FindObjectOfType<LevelChanger>().restartLevel();
+		GameObject.FindObjectOfType<LevelChanger>().restartLevel(true);
 	}
 
 	public void Quit() {
