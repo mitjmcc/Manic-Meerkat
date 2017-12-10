@@ -5640,8 +5640,8 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 0364da4b1b623f7428325a7629c4839f, type: 3}
-    m_FontSize: 58
+    m_Font: {fileID: 12800000, guid: 8fc7a0461fb6edd429c1c5b050304e50, type: 3}
+    m_FontSize: 20
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -5652,15 +5652,15 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Mitch McClellan - Programming
+  m_Text: 'Mitch McClellan - 3D Art, programming
 
-    Patrick Sewell - Technical Art
+    Patrick Sewell - Technical Art, game feel
 
-    Caleb Boerner - TBD
+    Caleb Boerner - Level design, boss
 
-    David Meyer - TBD
+    David Meyer - boss and enemy AI
 
-    Yanglin Huang - TBD'
+    Irene Huang - sound, ui help'
 --- !u!222 &969385075
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -13450,8 +13450,8 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 0364da4b1b623f7428325a7629c4839f, type: 3}
-    m_FontSize: 43
+    m_Font: {fileID: 12800000, guid: 8fc7a0461fb6edd429c1c5b050304e50, type: 3}
+    m_FontSize: 20
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -13474,7 +13474,9 @@ MonoBehaviour:
 
     freesound.org
 
-    dafont.com'
+    dafont.com
+
+    turbosquid'
 --- !u!222 &1127122102
 CanvasRenderer:
   m_ObjectHideFlags: 0
