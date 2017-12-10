@@ -206,7 +206,7 @@ public class BossStates : MonoBehaviour
 				}
 				else
 				{
-					GameObject.FindObjectOfType<LevelChanger>().loadLevel("MainMenu");
+					GameObject.FindObjectOfType<LevelChanger>().winLevel("MainMenu");
 				}
                 break;
 

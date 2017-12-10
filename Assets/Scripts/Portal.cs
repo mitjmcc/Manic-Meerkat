@@ -14,7 +14,7 @@ public class Portal : MonoBehaviour {
 
 	void Update() {
 		if (teleporting && (timer -= Time.deltaTime) < 0) {
-			GameObject.FindObjectOfType<LevelChanger>().loadLevel(level);
+			GameObject.FindObjectOfType<LevelChanger>().winLevel(level);
 		}
 	}
 

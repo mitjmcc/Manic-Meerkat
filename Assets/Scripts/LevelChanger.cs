@@ -15,6 +15,13 @@ public class LevelChanger : MonoBehaviour
 		SceneManager.LoadScene (name);
 	}
 
+	IEnumerator winScene(string name)
+	{
+		anim.SetTrigger ("Won");
+		yield return new WaitForSeconds (3);
+		SceneManager.LoadScene (name);
+	}
+
 	IEnumerator restartScene(bool fromMenu)
 	{
 		if (fromMenu) {
@@ -49,6 +56,15 @@ public class LevelChanger : MonoBehaviour
 		}
 		loading = true;
 		StartCoroutine (loadScene (name));
+	}
+
+	public void winLevel(string name)
+	{
+		if (loading) {
+			return;
+		}
+		loading = true;
+		StartCoroutine (winScene (name));
 	}
 
 	public void quitGame()

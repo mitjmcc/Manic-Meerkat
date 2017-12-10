@@ -1661,7 +1661,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 705146891}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 354.5, y: 255.65625, z: 0}
+  m_LocalPosition: {x: 472.44446, y: 322, z: 0}
   m_LocalScale: {x: 1.0006231, y: 1.0006231, z: 1.0006231}
   m_Children: []
   m_Father: {fileID: 1461792519}
@@ -1954,11 +1954,26 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 224906454136468388, guid: d3d1ac982d31e6a408bd8783a980408b,
+        type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 0.006286621
+      objectReference: {fileID: 0}
+    - target: {fileID: 224906454136468388, guid: d3d1ac982d31e6a408bd8783a980408b,
+        type: 2}
+      propertyPath: m_LocalPosition.y
+      value: -0.0041503906
+      objectReference: {fileID: 0}
     - target: {fileID: 223202282612914462, guid: d3d1ac982d31e6a408bd8783a980408b,
         type: 2}
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 815952725}
+    - target: {fileID: 114440565427835396, guid: d3d1ac982d31e6a408bd8783a980408b,
+        type: 2}
+      propertyPath: m_FontData.m_FontSize
+      value: 93
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d3d1ac982d31e6a408bd8783a980408b, type: 2}
   m_IsPrefabParent: 0
@@ -2164,7 +2179,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 919381539}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -312.5, y: 210.65625, z: 0}
+  m_LocalPosition: {x: -430.44446, y: 277, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1461792519}
@@ -3840,7 +3855,7 @@ RectTransform:
   m_GameObject: {fileID: 1461792515}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 24.29, y: 5.12, z: 6.35}
-  m_LocalScale: {x: 0.0022583068, y: 0.0022583068, z: 0.0022583068}
+  m_LocalScale: {x: 0.0017930132, y: 0.0017930132, z: 0.0017930132}
   m_Children:
   - {fileID: 919381540}
   - {fileID: 705146892}
