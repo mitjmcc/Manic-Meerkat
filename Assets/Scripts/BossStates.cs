@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-[RequireComponent(typeof(AINavSteeringController))]
 [RequireComponent(typeof(NavMeshAgent))]
 public class BossStates : MonoBehaviour
 {
@@ -14,20 +13,10 @@ public class BossStates : MonoBehaviour
     private GameObject enemy;
     public Animator anim;
     private Rigidbody rbody;
-    public Transform[] waypointSetA;
     public static Boolean enemyDead = false;
-    public static List<GameObject> wayPoints;
     public static int score = 0;
     private System.Random rand = new System.Random();
     private float angryTimer = 0f;
-
-    public Transform[] waypointSetB;
-
-    public Transform[] waypointSetC;
-
-    public Transform waypointE;
-
-    public Vector3 waypointF;
 
     public enum State
     {
@@ -47,31 +36,20 @@ public class BossStates : MonoBehaviour
 
     protected float deltat;
 
-
-    AINavSteeringController aiSteer;
     NavMeshAgent agent;
 
 
     // Use this for initialization
     void Start()
     {
-        wayPoints = new List<GameObject>();
         rbody = GetComponent<Rigidbody>();
 
         anim = GetComponent<Animator>();
 
-        aiSteer = GetComponent<AINavSteeringController>();
-
         agent = GetComponent<NavMeshAgent>();
+		agent.updatePosition = false;
+		agent.updateRotation = false;
 
-        aiSteer.Init();
-
-        aiSteer.enabled = true;
-        agent.enabled = true;
-
-        aiSteer.waypointLoop = false;
-        aiSteer.stopAtNextWaypoint = false;
-        //aiSteer.useNavMeshPathPlanning = true;
         transitionToStateFollow();
         Debug.Log(transform.position);
         Debug.Log(player.transform.position);
@@ -84,11 +62,6 @@ public class BossStates : MonoBehaviour
 
         state = State.FOLLOW;
 
-        aiSteer.clearWaypoints();
-        aiSteer.setWayPoint(player.transform);
-
-        //aiSteer.useNavMeshPathPlanning = true;
-
         angryTimer = 0f;
 
         Debug.Log(state);
@@ -99,26 +72,14 @@ public class BossStates : MonoBehaviour
     {
         state = State.ANGRY;
 
-        //aiSteer.enabled = false;
-        //aiSteer.useNavMeshPathPlanning = false;
-        //agent.enabled = false;
-
         Debug.Log(state);
     }
 
 
     void transitionToStateRampage()
     {
-
         state = State.RAMPAGE;
-        
-        //aiSteer.setWayPoint(player.transform.position);
 
-
-        agent.enabled = true;
-        agent.destination = new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z);
-        //aiSteer.enabled = true;
-        //aiSteer.useNavMeshPathPlanning = true;
         Debug.Log(state);
     }
 
@@ -128,8 +89,6 @@ public class BossStates : MonoBehaviour
         Debug.Log("Player died");
         state = State.VICTORY;
         anim.SetTrigger("playerDead");
-        //aiSteer.enabled = false;
-        //aiSteer.useNavMeshPathPlanning = false;
 
         Debug.Log(state);
     }
@@ -154,45 +113,52 @@ public class BossStates : MonoBehaviour
 
         switch (state)
         {
-            case State.FOLLOW:
-                float threshold = 2.5f;
-                angryTimer += Time.deltaTime;
-                if (Math.Abs(player.transform.position.x - rbody.position.x) < threshold &&
-                Math.Abs(player.transform.position.y - rbody.position.y) < threshold &&
-                Math.Abs(player.transform.position.z - rbody.position.z) < threshold)
-                {
-                    enemyDead = true;
-                    AudioSource.PlayClipAtPoint(this.death, this.transform.position);
-                }
+		case State.FOLLOW:
+			float threshold = 2.5f;
+			angryTimer += Time.deltaTime;
+			if (Math.Abs (player.transform.position.x - rbody.position.x) < threshold &&
+			    Math.Abs (player.transform.position.y - rbody.position.y) < threshold &&
+			    Math.Abs (player.transform.position.z - rbody.position.z) < threshold) {
+				enemyDead = true;
+				AudioSource.PlayClipAtPoint (this.death, this.transform.position);
+			}
 
-                if (angryTimer >= 50f)
-                {
-                    transitionToStateAngry();
-                }
+			if (angryTimer >= 50f) {
+				transitionToStateAngry ();
+			}
 
-                if (enemyDead)
-                {
-                    transitionToStateVictory();
-                    enemyDead = false;
-                }
-                transform.LookAt(new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z));
-                //aiSteer.clearWaypoints();
-                aiSteer.setWayPoint(player.transform);
-                break;
+			if (enemyDead) {
+				transitionToStateVictory ();
+				enemyDead = false;
+			}
+
+			anim.SetFloat ("magnitude", 0.7f);
+
+			agent.SetDestination (player.transform.position);
+
+			//Agent turns to walk along NavMeshAgent's desired path
+			transform.LookAt (transform.position + new Vector3 (agent.desiredVelocity.x, 0, agent.desiredVelocity.z));
+			agent.nextPosition = transform.position;
+            	break;
 
             case State.ANGRY:
+				anim.SetFloat ("magnitude", 0.0f);
                 anim.SetTrigger("getMad");
                 transitionToStateRampage();
                 break;
 
             case State.RAMPAGE:
-                if (aiSteer.waypointsComplete())
-                    transitionToStateFollow();
+				anim.SetFloat ("magnitude", 1.0f);
+
+				//Agent turns to walk straight toward the player
+				transform.LookAt(player.transform.position);
                 break;
 
             case State.DEATH:
+				anim.SetFloat ("magnitude", 0.0f);
                 break;
             case State.VICTORY:
+				anim.SetFloat ("magnitude", 0.0f);
                 enemyDead = false;
                 transitionToTimer();
                 break;
