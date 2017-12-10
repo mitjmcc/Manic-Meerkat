@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class BossStates : MonoBehaviour
@@ -10,6 +11,7 @@ public class BossStates : MonoBehaviour
     #region public variables
     public GameObject player;
     public AudioClip death;
+	public Text bossHealth;
     #endregion
 
     #region private variables
@@ -24,6 +26,7 @@ public class BossStates : MonoBehaviour
     private float sadTrigger = 5f;
     private float waitTime = 3f;
     protected float deltat;
+	private AudioSource footstep;
     #endregion
 
     public enum State
@@ -56,6 +59,8 @@ public class BossStates : MonoBehaviour
 
         health = 3;
         state = State.FOLLOW;
+
+		footstep = transform.Find ("Footstep").GetComponent<AudioSource> ();
     }
 
 
@@ -140,7 +145,7 @@ public class BossStates : MonoBehaviour
 				transitionToStateAngry ();
 			}
 
-			anim.SetFloat ("magnitude", health == 1 ? 1.0f : 0.9f);
+			anim.SetFloat ("magnitude", health == 1 ? 0.91f : 0.85f);
 
 			agent.SetDestination (player.transform.position);
 
@@ -212,12 +217,17 @@ public class BossStates : MonoBehaviour
 
     }
 
+	public void FootStep() {
+		footstep.Play ();
+	}
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag.Equals("tntbox") && state.Equals(State.RAMPAGE))
         {
             collision.gameObject.GetComponent<TNTCrate>().Explode();
             health--;
+			bossHealth.text = "BOSS: " + health;
             if (health <= 0)
             {
                 transitionToStateDeath();
