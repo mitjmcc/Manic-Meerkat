@@ -10,17 +10,16 @@ public class BossStates : MonoBehaviour
 {
 
     public GameObject player;
-    public GameObject myBallPrefab;
     public AudioClip death;
     private GameObject enemy;
     public Animator anim;
     private Rigidbody rbody;
-    private bool throwing = false;
     public Transform[] waypointSetA;
     public static Boolean enemyDead = false;
     public static List<GameObject> wayPoints;
     public static int score = 0;
     private System.Random rand = new System.Random();
+    private float angryTimer = 0f;
 
     public Transform[] waypointSetB;
 
@@ -33,6 +32,7 @@ public class BossStates : MonoBehaviour
     public enum State
     {
         FOLLOW,
+        ANGRY,
         RAMPAGE,
         DEATH,
         VICTORY,
@@ -66,9 +66,15 @@ public class BossStates : MonoBehaviour
 
         aiSteer.Init();
 
+        aiSteer.enabled = true;
+        agent.enabled = true;
+
         aiSteer.waypointLoop = false;
         aiSteer.stopAtNextWaypoint = false;
+        //aiSteer.useNavMeshPathPlanning = true;
         transitionToStateFollow();
+        Debug.Log(transform.position);
+        Debug.Log(player.transform.position);
 
     }
 
@@ -78,11 +84,26 @@ public class BossStates : MonoBehaviour
 
         state = State.FOLLOW;
 
-        aiSteer.setWayPoints(waypointSetA);
+        aiSteer.clearWaypoints();
+        aiSteer.setWayPoint(player.transform);
 
-        aiSteer.useNavMeshPathPlanning = true;
+        //aiSteer.useNavMeshPathPlanning = true;
 
+        angryTimer = 0f;
 
+        Debug.Log(state);
+    }
+
+    
+    void transitionToStateAngry()
+    {
+        state = State.ANGRY;
+
+        //aiSteer.enabled = false;
+        //aiSteer.useNavMeshPathPlanning = false;
+        //agent.enabled = false;
+
+        Debug.Log(state);
     }
 
 
@@ -90,33 +111,41 @@ public class BossStates : MonoBehaviour
     {
 
         state = State.RAMPAGE;
+        
+        //aiSteer.setWayPoint(player.transform.position);
 
-        aiSteer.setWayPoints(waypointSetB);
 
-        aiSteer.useNavMeshPathPlanning = true;
+        agent.enabled = true;
+        agent.destination = new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z);
+        //aiSteer.enabled = true;
+        //aiSteer.useNavMeshPathPlanning = true;
+        Debug.Log(state);
     }
 
 
     void transitionToStateVictory()
     {
-
+        Debug.Log("Player died");
         state = State.VICTORY;
         anim.SetTrigger("playerDead");
-        aiSteer.enabled = false;
-        aiSteer.useNavMeshPathPlanning = false;
+        //aiSteer.enabled = false;
+        //aiSteer.useNavMeshPathPlanning = false;
 
+        Debug.Log(state);
     }
 
     void transitionToStateDeath()
     {
         state = State.DEATH;
 
+        Debug.Log(state);
     }
 
     void transitionToTimer()
     {
         state = State.TIMER;
         deltat = 0f;
+        Debug.Log(state);
     }
 
     // Update is called once per frame
@@ -127,6 +156,7 @@ public class BossStates : MonoBehaviour
         {
             case State.FOLLOW:
                 float threshold = 2.5f;
+                angryTimer += Time.deltaTime;
                 if (Math.Abs(player.transform.position.x - rbody.position.x) < threshold &&
                 Math.Abs(player.transform.position.y - rbody.position.y) < threshold &&
                 Math.Abs(player.transform.position.z - rbody.position.z) < threshold)
@@ -135,20 +165,29 @@ public class BossStates : MonoBehaviour
                     AudioSource.PlayClipAtPoint(this.death, this.transform.position);
                 }
 
+                if (angryTimer >= 50f)
+                {
+                    transitionToStateAngry();
+                }
+
                 if (enemyDead)
                 {
                     transitionToStateVictory();
                     enemyDead = false;
                 }
-                transitionToStateFollow();
                 transform.LookAt(new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z));
-                //transform.LookAt(player.transform);
+                //aiSteer.clearWaypoints();
                 aiSteer.setWayPoint(player.transform);
+                break;
+
+            case State.ANGRY:
+                anim.SetTrigger("getMad");
+                transitionToStateRampage();
                 break;
 
             case State.RAMPAGE:
                 if (aiSteer.waypointsComplete())
-                    transitionToStateRampage();
+                    transitionToStateFollow();
                 break;
 
             case State.DEATH:
@@ -175,5 +214,13 @@ public class BossStates : MonoBehaviour
         }
 
 
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag.Equals("tntbox") && state.Equals(State.RAMPAGE))
+        {
+            Debug.Log("Boom");
+        }
     }
 }
