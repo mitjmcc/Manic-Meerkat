@@ -14,7 +14,6 @@ public class CharacterController : MonoBehaviour {
     public Transform groundPlane;
     public Transform[] spawnPoints;
     public TrailRenderer trail;
-    public AudioSource audioS;
     #endregion
 
     #region PrivateVariables
@@ -31,6 +30,11 @@ public class CharacterController : MonoBehaviour {
     bool isBashing;
     bool isDead;
     CapsuleCollider collider;
+
+	private AudioSource footstep;
+	private AudioSource jump;
+	private AudioSource bash;
+	private AudioSource death;
     #endregion
 
     // Use this for initialization
@@ -38,14 +42,23 @@ public class CharacterController : MonoBehaviour {
         body = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
         collider = GetComponent<CapsuleCollider>();
+		footstep = transform.Find ("Footstep").GetComponent<AudioSource> ();
+		jump = transform.Find ("Jump").GetComponent<AudioSource> ();
+		death = transform.Find ("Death").GetComponent<AudioSource> ();
+		bash = GetComponent<AudioSource> ();
     }
 
     void FixedUpdate() {
-        isJumping = Input.GetButton("Jump") && isGrounded;
-        isBashing = Input.GetButtonDown("Fire1");
+		if (isDead) {
+			return;
+		}
 
-        if (anim.GetCurrentAnimatorStateInfo(0).IsName("kick")) {
+        isJumping = Input.GetButton("Jump") && isGrounded;
+		isBashing = Input.GetButton("Fire1") && !bash.isPlaying;
+
+		if (anim.GetCurrentAnimatorStateInfo(0).IsName("kick")) {
             isGrounded = false;
+			isBashing = false;
             BashAttack();
             trail.enabled = true;
         } else {
@@ -62,7 +75,6 @@ public class CharacterController : MonoBehaviour {
         } else {
             speed = Vector3.zero;
             anim.speed = 1;
-            StopAudio();
         }
 
         anim.SetFloat("magnitude", Mathf.Lerp(anim.GetFloat("magnitude"), Mathf.Min(1, direction.magnitude), Time.fixedDeltaTime * 12f));
@@ -76,6 +88,7 @@ public class CharacterController : MonoBehaviour {
         if (isJumping) {
             if (Time.time > jumpTime + 0.2f) {
                 anim.SetTrigger("jump");
+				jump.Play ();
                 body.velocity = new Vector3(body.velocity.x, jumpHeight, body.velocity.y);
                 jumpTime = Time.time;
             }
@@ -84,7 +97,7 @@ public class CharacterController : MonoBehaviour {
         anim.SetBool("grounded", isGrounded);
 
         if (isBashing) {
-            GetComponent<AudioSource>().Play();
+			bash.Play();
             anim.SetTrigger("bash");
         }
 
@@ -105,21 +118,14 @@ public class CharacterController : MonoBehaviour {
     public void Death() {
         if (!isDead) {
             anim.SetTrigger("dying");
-            GameObject.FindObjectOfType<LevelChanger>().restartLevel();
+			death.Play ();
+            GameObject.FindObjectOfType<LevelChanger>().restartLevel(false);
         }
         isDead = true;
     }
 
     public void FootStep() {
-        audioS.enabled = true;
-        if (!audioS.isPlaying) {
-            audioS.Play();
-        }
-    }
-
-    public void StopAudio() {
-        audioS.enabled = false;
-        audioS.Stop();
+        footstep.Play();
     }
 
     void OnAnimatorMove() {
