@@ -34,6 +34,7 @@ public class BossStates : MonoBehaviour
         MISSED,
         DEATH,
         VICTORY,
+		HIT,
         TIMER
     }
 
@@ -139,7 +140,7 @@ public class BossStates : MonoBehaviour
 				transitionToStateAngry ();
 			}
 
-			anim.SetFloat ("magnitude", 0.7f);
+			anim.SetFloat ("magnitude", health == 1 ? 1.0f : 0.9f);
 
 			agent.SetDestination (player.transform.position);
 
@@ -180,22 +181,26 @@ public class BossStates : MonoBehaviour
                 transitionToTimer();
                 break;
 
+			case State.HIT:
+				anim.SetFloat ("magnitude", 0.0f);
+				agent.SetDestination (transform.position);
+				angryTimer += Time.deltaTime;
+				if (angryTimer >= 3) {
+					transitionToStateFollow ();
+				}
+				break;
+
             case State.TIMER:
-                deltat += Time.deltaTime;
-                if (deltat > waitTime)
-                {
-                    if (health > 0)
-                    {
-                        CharacterController pl = player.gameObject.GetComponent<CharacterController>();
-                        pl.Death();
-                        transitionToStateFollow();
-                    }
-                    else
-                    {
-                        GameObject.FindObjectOfType<LevelChanger>().loadLevel("MainMenu");
-                    }
-                }
-                
+				if (health > 0)
+				{
+					CharacterController pl = player.gameObject.GetComponent<CharacterController>();
+					pl.Death();
+					transitionToStateFollow();
+				}
+				else
+				{
+					GameObject.FindObjectOfType<LevelChanger>().loadLevel("MainMenu");
+				}
                 break;
 
             default:
@@ -220,7 +225,9 @@ public class BossStates : MonoBehaviour
             else
             {
                 anim.SetTrigger("isHit");
-                transitionToStateFollow();
+				angryTimer = 0;
+				state = State.HIT;
+                //transitionToStateFollow();
             }
             Debug.Log(health);
         }

@@ -9,6 +9,7 @@ public class ShootingEnemy : MonoBehaviour, IJumpable, IBashable {
 	public float shootTime;
 	public GameObject projectile;
 	public Vector2 projectileVelocity;
+	private GameObject player;
 
 	Vector3 eulerA;
 	Animator anim;
@@ -26,13 +27,13 @@ public class ShootingEnemy : MonoBehaviour, IJumpable, IBashable {
 		float r = transform.rotation.eulerAngles.y;
 		for (int i = 0; i < 3; ++i)
 			angles[i] = r + angle - i * angle;
+		player = GameObject.FindObjectOfType<CharacterController> ().gameObject;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		if ((shootTimer -= Time.deltaTime) < 0 && !isDead) {
-			eulerA = transform.rotation.eulerAngles;
-			transform.rotation = Quaternion.Euler(eulerA.x, angles[index++ % angles.Length], eulerA.z);
+			transform.LookAt (player.transform.position);
 			shootTimer = shootTime;
 			LaunchProjectile();
 		}
@@ -41,7 +42,6 @@ public class ShootingEnemy : MonoBehaviour, IJumpable, IBashable {
 	void LaunchProjectile() {
 		anim.SetTrigger("attack");
 		GameObject p = Instantiate(projectile, transform.position + transform.up, Quaternion.identity);
-		p.transform.SetParent(transform);
 		p.GetComponent<Rigidbody>().velocity = transform.forward * projectileVelocity.x
 			+ transform.up * projectileVelocity.y;
 	}
